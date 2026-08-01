@@ -66,11 +66,11 @@ Plus: **ridge** is always on with a tunable `λ`, and the market **dimension `d`
 ## Repository layout (swing-only)
 
 ```
-market.py       # HHK electricity model: simulate (Z,Y) factors -> spot S; 1-D and multi-D
-swing.py        # swing payoff Q, reward, terminal, admissible sets D_n, inventory map
-bases.py        # feature maps: polynomial family (+ one other), RNN random features, constant
-lsm.py          # backward-induction LSM engine + ridge solver + policy/value
-experiments.py  # run configs: dimension d, (Z,Y)|S input, joint|per-level inventory, basis
+Electricity_Market_Model.py  # HHK electricity model: simulate (Z,Y) factors -> spot S; 1-D and multi-D
+swing.py              # swing payoff Q, reward, terminal, admissible sets D_n, inventory map
+Basis_Functions.py    # feature maps: polynomial family (+ one other), RNN random features, constant
+Regression.py         # backward-induction LSM engine + ridge solver + policy/value
+experiments.py        # run configs: dimension d, (Z,Y)|S input, joint|per-level inventory, basis
 ```
 
 Files may merge or split later; this is a starting shape, not a commitment.
@@ -86,7 +86,7 @@ dZ_t = -κ Z_t dt + σ dW_t                 (OU: fundamental diffusion)
 dY_t = -β Y_{t-} dt + J_t dN_t            (mean-reverting spikes)
 ```
 
-`N_t` is Poisson with intensity `λ`; jump sizes `J ~ Exp(mean 1/μ)` (positive jumps only).
+`N_t` is Poisson with intensity `λ`; jump sizes `J ~ Exp(mean μ)` (positive jumps only).
 
 Exact discretizations (both factors have closed forms):
 
@@ -155,6 +155,9 @@ With `Φ_n ∈ R^{K × (M_t·H_n)}` (columns are `Φ(x_n^{m,h})`) and target vec
   except the constant). The constant is a level term, never the source of ill-conditioning, so it
   stays unpenalized.
 - Solve via the symmetric positive-definite normal equations (Cholesky), not an explicit inverse.
+- **Settled convention:** every feature map in `Basis_Functions.py` puts the constant feature in the
+  **last** column of `Phi` (matching the RNN formula below). `Regression.py`'s `ridge_regression`
+  relies on this to build `I_0` — it always zeroes the last diagonal entry, nothing else.
 
 ## Feature maps
 
