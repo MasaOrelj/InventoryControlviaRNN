@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
+from scipy.special import eval_laguerre
 
 
 def _monomial_exponents(n_dims: int, degree: int) -> list[tuple[int, ...]]:
@@ -56,28 +57,31 @@ class PolynomialBasis:
 
 @dataclass(frozen=True)
 class WeightedLaguerreBasis:
-    """Per-dimension weighted Laguerre functions, degree 0/1/2, matching the
-    reference implementation exactly: one shared unweighted constant, plus
-    exp(-x/(2K)) * L_d(x/K) for d=0,1,2 in each dimension (no cross-dimension
-    terms -- feature count = 1 + 3*n_dims, linear in n_dims). K rescales the
-    input before evaluating (K=1 reproduces the reference's un-rescaled form).
+    """Per-dimension weighted Laguerre functions, degree 0..`degree`: one
+    shared unweighted constant, plus exp(-x/(2K)) * L_d(x/K) for d=0..degree
+    in each dimension (no cross-dimension terms -- feature count =
+    1 + n_dims*(degree+1), linear in n_dims, unlike PolynomialBasis's
+    combinatorial growth). K rescales the input before evaluating (K=1
+    reproduces the reference implementation's un-rescaled form).
 
-    L_0(x) = 1, L_1(x) = 1-x, L_2(x) = 1-2x+x^2/2 (standard Laguerre polynomials)."""
+    L_d is the standard Laguerre polynomial (scipy.special.eval_laguerre),
+    generated via its three-term recurrence rather than hand-derived closed
+    forms -- verified against the previous hardcoded degree-0/1/2 formulas in
+    Basis_Functions_Test.py, so this is a trusted generalization, not new math."""
 
     n_dims: int
+    degree: int
     K: float = 1.0
 
     @property
     def n_features(self) -> int:
-        return 1 + 3 * self.n_dims
+        return 1 + self.n_dims * (self.degree + 1)
 
     def build_features(self, state: np.ndarray) -> np.ndarray:
         scaled = state / self.K
         weight = np.exp(-scaled / 2.0)
-        L0 = weight
-        L1 = weight * (1.0 - scaled)
-        L2 = weight * (1.0 - 2.0 * scaled + scaled**2 / 2.0)
-        return np.concatenate([L0, L1, L2, np.ones((state.shape[0], 1))], axis=1)
+        terms = [weight * eval_laguerre(d, scaled) for d in range(self.degree + 1)]
+        return np.concatenate(terms + [np.ones((state.shape[0], 1))], axis=1)
 
 
 @dataclass(frozen=True, eq=False)

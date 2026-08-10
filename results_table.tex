@@ -1,0 +1,22 @@
+\begin{table}
+
+\caption{\label{tab:tab:state_representation}Comparison of state representations $(S_n,I_n)$ vs.\ $(Z_n,Y_n,I_n)$.}
+\centering
+\begin{tabular}[t]{rlllrrrrrrr}
+\toprule
+\multicolumn{4}{c}{ } & \multicolumn{3}{c}{State Representation \$(S\_n,I\_n)\$} & \multicolumn{3}{c}{State Representation \$(Z\_n,Y\_n,I\_n)\$} & \multicolumn{1}{c}{ } \\
+\cmidrule(l{3pt}r{3pt}){5-7} \cmidrule(l{3pt}r{3pt}){8-10}
+Dim & Basis & Fit & \$\textbackslash{}lambda\$ & Price & SD & Duration & Price & SD & Duration & Rel.\textbackslash{} Diff (\textbackslash{}\%)\\
+\midrule
+1 & poly & plain & - & 22099.30 & 103.82 & 0.300 & 22149.02 & 101.99 & 0.754 & 0.225\\
+1 & poly & ridge & 1 & 22099.88 & 104.03 & 0.274 & 21764.41 & 98.54 & 0.538 & -1.518\\
+1 & rnn & plain & - & 22086.21 & 96.31 & 2.823 & 22120.10 & 101.99 & 2.685 & 0.153\\
+1 & rnn & ridge & 1 & 22088.59 & 96.50 & 0.892 & 22049.99 & 100.13 & 1.017 & -0.175\\
+10 & poly & plain & - & 182765.79 & 417.19 & 17.084 & 182263.64 & 430.60 & 105.643 & -0.275\\
+\addlinespace
+10 & poly & ridge & 1 & 182765.93 & 408.04 & 5.664 & 182123.75 & 324.23 & 43.193 & -0.351\\
+10 & rnn & plain & - & 182920.45 & 402.99 & 3.145 & 182967.07 & 380.26 & 3.238 & 0.025\\
+10 & rnn & ridge & 1 & 182932.75 & 400.64 & 1.217 & 182763.62 & 385.58 & 1.104 & -0.092\\
+\bottomrule
+\end{tabular}
+\end{table}
