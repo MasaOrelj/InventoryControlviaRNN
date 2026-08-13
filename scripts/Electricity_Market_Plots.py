@@ -11,7 +11,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from Electricity_Market_Model import DEFAULT_PARAMS, HHKParams, seasonality, simulate_hhk
+from core.Electricity_Market_Model import DEFAULT_PARAMS, HHKParams, seasonality, simulate_hhk
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "plots")
 

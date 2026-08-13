@@ -10,16 +10,18 @@ FIELDNAMES = [
     "rep",
     # market model parameters (HHK electricity)
     "kappa", "sigma", "beta", "lam_up", "mu_up", "lam_down", "mu_down",
-    "f_level", "f_amp", "f_period", "discount_rate", "maturity", "n_steps", "n_paths", "n_dims",
+    "f_level", "f_amp", "f_period", "discount_rate", "maturity", "n_steps",
+    "n_paths_train", "n_paths_eval", "n_dims",
     # swing option parameters
     "K", "q_min", "q_max", "q_tilde", "L",
     # regression configuration
     "state_input",       # "S" or "ZY"
     "regression_mode",   # "per-level" (inventory fixed per regression) or "joint" (inventory as a regressor)
-    "basis_type",        # "poly" or "rnn"
-    "basis_degree",      # poly only
+    "basis_type",        # "poly", "laguerre", or "rnn"
+    "basis_degree",      # poly, laguerre
     "basis_n_hidden",    # rnn only
     "basis_activation",  # rnn only
+    "basis_K",           # laguerre only -- its own input-rescaling constant, unrelated to "K" (the strike) above
     "fit_type",          # "plain" or "ridge"
     "ridge_lambda",      # ridge only
     # results

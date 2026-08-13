@@ -16,8 +16,7 @@ import numpy as np
 
 
 def sum_aggregation(Q: np.ndarray) -> np.ndarray:
-    """Q_total = sum_j Q(S_n^(j)). One swing right adjusts every dimension
-    of the portfolio simultaneously; gains add up."""
+    """Q_total = sum_j Q(S_n^(j))."""
     return Q.sum(axis=-1)
 
 

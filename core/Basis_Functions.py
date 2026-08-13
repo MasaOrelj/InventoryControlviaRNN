@@ -5,6 +5,13 @@ Every family follows the same convention: `state` has shape (n_samples, n_dims)
 `build_features` returns Phi of shape (n_samples, n_features) with the constant
 feature always in the LAST column. Regression.py's ridge solver relies on this to know
 which column to exempt from the ridge penalty.
+
+Standardization: state values are large (spot price ~10^2). Two distinct
+formulas, not one:
+  - PolynomialBasis, RandomFeaturesBasis: full z-score, (x-mean)/std. 
+  - WeightedLaguerreBasis: scale-only, x/std (no centering). Its weight
+    exp(-x/(2K)) is unbounded for negative x, so centering (which can flip a
+    positive price negative) would blow it up; scaling alone preserves sign.
 """
 
 import itertools
@@ -31,12 +38,6 @@ def _monomial_exponents(n_dims: int, degree: int) -> list[tuple[int, ...]]:
 
 @dataclass(frozen=True)
 class PolynomialBasis:
-    """Total-degree <= `degree` tensor-product monomials in `n_dims` variables,
-    including cross terms (e.g. degree=2, n_dims=2: x1, x2, x1^2, x1*x2, x2^2,
-    plus the constant). Feature count = C(degree + n_dims, n_dims); grows
-    combinatorially with n_dims -- this is the "preselection cost" CLAUDE.md
-    contrasts against the RNN family."""
-
     n_dims: int
     degree: int
 
@@ -54,34 +55,41 @@ class PolynomialBasis:
         Phi[:, -1] = 1.0
         return Phi
 
+    def standardize(self, state: np.ndarray, mean: np.ndarray, std: np.ndarray) -> np.ndarray:
+        return (state - mean) / std
+
 
 @dataclass(frozen=True)
 class WeightedLaguerreBasis:
-    """Per-dimension weighted Laguerre functions, degree 0..`degree`: one
-    shared unweighted constant, plus exp(-x/(2K)) * L_d(x/K) for d=0..degree
-    in each dimension (no cross-dimension terms -- feature count =
-    1 + n_dims*(degree+1), linear in n_dims, unlike PolynomialBasis's
-    combinatorial growth). K rescales the input before evaluating (K=1
-    reproduces the reference implementation's un-rescaled form).
+    """Tensor-product weighted Laguerre functions, total degree <= `degree`,
+    INCLUDING cross terms across dimensions."""
 
-    L_d is the standard Laguerre polynomial (scipy.special.eval_laguerre),
-    generated via its three-term recurrence rather than hand-derived closed
-    forms -- verified against the previous hardcoded degree-0/1/2 formulas in
-    Basis_Functions_Test.py, so this is a trusted generalization, not new math."""
 
     n_dims: int
     degree: int
     K: float = 1.0
 
+    def __post_init__(self):
+        object.__setattr__(self, "exponents", _monomial_exponents(self.n_dims, self.degree))
+
     @property
     def n_features(self) -> int:
-        return 1 + self.n_dims * (self.degree + 1)
+        return len(self.exponents) + 1
 
     def build_features(self, state: np.ndarray) -> np.ndarray:
         scaled = state / self.K
-        weight = np.exp(-scaled / 2.0)
-        terms = [weight * eval_laguerre(d, scaled) for d in range(self.degree + 1)]
-        return np.concatenate(terms + [np.ones((state.shape[0], 1))], axis=1)
+        Phi = np.empty((state.shape[0], self.n_features))
+        for col, alpha in enumerate(self.exponents):
+            alpha_arr = np.array(alpha)
+            active = (alpha_arr > 0).astype(float)             # 1 for dims IN this term, 0 otherwise
+            weight = np.exp(-(scaled * active).sum(axis=1) / 2.0)   # only active dims decay
+            shape = np.prod(eval_laguerre(alpha_arr, scaled), axis=1)   # L_0=1 handles inactive dims
+            Phi[:, col] = weight * shape
+        Phi[:, -1] = 1.0
+        return Phi
+
+    def standardize(self, state: np.ndarray, mean: np.ndarray, std: np.ndarray) -> np.ndarray:
+        return state / std
 
 
 @dataclass(frozen=True, eq=False)
@@ -108,16 +116,24 @@ class RandomFeaturesBasis:
         Phi[:, -1] = 1.0
         return Phi
 
+    def standardize(self, state: np.ndarray, mean: np.ndarray, std: np.ndarray) -> np.ndarray:
+        return (state - mean) / std
+
 
 def make_random_features_basis(
     rng: np.random.Generator,
     n_dims: int,
     n_hidden: int = 20,
     activation: Callable[[np.ndarray], np.ndarray] = np.tanh,
-    scale: float = 1.0,
+    theta_scale: float | None = None,
+    b_scale: float = 1.0,
 ) -> RandomFeaturesBasis:
-    """Draw Theta ~ N(0, scale^2) (n_hidden, n_dims) and b ~ N(0, scale^2)
-    (n_hidden,) once from `rng`, then fix them into a RandomFeaturesBasis."""
-    Theta = rng.standard_normal((n_hidden, n_dims)) * scale
-    b = rng.standard_normal(n_hidden) * scale
+    """Default theta_scale=None means 1/sqrt(n_dims), i.e. Theta_jl ~ N(0, 1/n_dims)
+    while b_j ~ N(0,1) unscaled -- keeps Theta @ x's variance roughly
+    independent of state dimension (a sum of n_dims terms, each shrunk by
+    1/n_dims in variance), while b has no such fan-in to compensate for."""
+    if theta_scale is None:
+        theta_scale = 1.0 / np.sqrt(n_dims)
+    Theta = rng.standard_normal((n_hidden, n_dims)) * theta_scale
+    b = rng.standard_normal(n_hidden) * b_scale
     return RandomFeaturesBasis(Theta=Theta, b=b, activation=activation)

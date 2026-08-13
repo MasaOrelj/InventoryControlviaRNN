@@ -13,12 +13,12 @@ import time
 
 import numpy as np
 
-import Swing
-from Basis_Functions import PolynomialBasis, make_random_features_basis
-from Black_Scholes_Model import BlackScholesParams, simulate_black_scholes
-from Payoff_Aggregation import max_aggregation
-from Regression import least_squares, price_swing
-from Swing import SwingContract
+from core import Swing
+from core.Basis_Functions import PolynomialBasis, make_random_features_basis
+from core.Black_Scholes_Model import BlackScholesParams, simulate_black_scholes
+from core.Payoff_Aggregation import max_aggregation
+from core.Regression import least_squares, price_swing
+from core.Swing import SwingContract
 
 K = 100.0
 SPOT = 100.0
@@ -68,7 +68,13 @@ def run_rlsm(rng: np.random.Generator, d: int, payoff_as_input: bool) -> float:
         rng, params, n_paths=N_PATHS, n_steps=N_STEPS, maturity=MATURITY, n_dims=d, spot=SPOT,
     )
     regression_state = _regression_state(paths.S, payoff_as_input)
-    basis = make_random_features_basis(rng, n_dims=regression_state.shape[-1], n_hidden=20, activation=leaky_relu)
+    # theta_scale=1.0: the paper's stated methodology is "i.i.d. standard
+    # normal" weights, unscaled -- NOT this thesis's own 1/sqrt(n_dims)
+    # convention (make_random_features_basis's default), which would break
+    # the point of validating against their published numbers.
+    basis = make_random_features_basis(
+        rng, n_dims=regression_state.shape[-1], n_hidden=20, activation=leaky_relu, theta_scale=1.0,
+    )
     result = price_swing(
         S=paths.S, regression_state=regression_state, contract=CONTRACT, aggregate=max_aggregation,
         basis=basis, fit=least_squares, alpha=ALPHA, train_itm_only=True,

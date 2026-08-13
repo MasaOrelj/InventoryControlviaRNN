@@ -1,17 +1,13 @@
 """HHK electricity spot model.
 
     S_t  = exp( f(t) + Z_t + Y_t )
-    dZ_t = -kappa Z_t dt + sigma dW_t                     (OU: fundamental diffusion)
-    dY_t = -beta Y_{t-} dt + J_t dN_t - J'_t dN'_t         (mean-reverting spikes)
+    dZ_t = -kappa Z_t dt + sigma dW_t                     
+    dY_t = -beta Y_{t-} dt + J_t dN_t - J'_t dN'_t         
 
 `N` (up-jumps) and `N'` (down-jumps) are independent Poisson processes with
 intensities `lam_up` / `lam_down`; jump sizes are `J ~ Exp(mean mu_up)` and
 `J' ~ Exp(mean mu_down)` (both positive-valued, the down-jump is subtracted).
 Setting `lam_down = 0` recovers the single-sided (positive-jump-only) model.
-
-`Z`, `Y`, `S` are simulated on an equidistant grid via their exact discretizations,
-vectorized across paths and (independent) market dimensions; the only Python loop
-is forward over time steps.
 """
 
 from dataclasses import dataclass
@@ -44,7 +40,7 @@ DEFAULT_PARAMS = HHKParams(
 
 @dataclass(frozen=True)
 class HHKPaths:
-    """Simulated HHK paths. Arrays have shape (n_steps+1, n_paths, n_dims).
+    """Arrays have shape (n_steps+1, n_paths, n_dims).
 
     Axis 0 = time step, axis 1 = Monte Carlo path, axis 2 = market dimension
     (e.g. independent delivery hours/locations sharing the same f(t))."""
@@ -74,35 +70,30 @@ def simulate_hhk(
     dt = maturity / n_steps
     t_grid = np.linspace(0.0, maturity, n_steps + 1)
 
-    # Pre-allocate the full path arrays and set the (deterministic) starting point.
+
     Z = np.empty((n_steps + 1, n_paths, n_dims))
     Y = np.empty((n_steps + 1, n_paths, n_dims))
     Z[0] = z0
     Y[0] = y0
 
-    # Constants for the *exact* discretization of the OU process Z (CLAUDE.md formula):
+    
     #   Z_{n+1} = ou_decay * Z_n + ou_std * eps,   eps ~ N(0,1)
-    # These don't depend on n, so compute them once outside the time loop.
     ou_decay = np.exp(-params.kappa * dt)
     ou_std = params.sigma * np.sqrt((1.0 - np.exp(-2.0 * params.kappa * dt)) / (2.0 * params.kappa))
     # Decay factor for the spike factor Y between two grid points.
     spike_decay = np.exp(-params.beta * dt)
 
-    # Only loop over time (forward, one step at a time); every path and every
-    # market dimension is updated together as a vectorized array operation.
+    
     for n in range(n_steps):
         eps = rng.standard_normal(size=(n_paths, n_dims))
         Z[n + 1] = ou_decay * Z[n] + ou_std * eps
 
-        # Compound-Poisson jump contribution arriving inside (t_n, t_n+1]; up and
-        # down spikes are independent Poisson processes, so just sum both (down
-        # jumps are subtracted). See _jump_increment for how this is vectorized.
+        # Compound-Poisson jump contribution arriving inside (t_n, t_n+1]
         jump_up = _jump_increment(rng, params.lam_up, params.mu_up, params.beta, dt, n_paths, n_dims)
         jump_down = _jump_increment(rng, params.lam_down, params.mu_down, params.beta, dt, n_paths, n_dims)
         Y[n + 1] = spike_decay * Y[n] + jump_up - jump_down
 
-    # Spot price S_t = exp(f(t) + Z_t + Y_t). f depends only on time, so broadcast
-    # it across the (path, dim) axes with [:, None, None].
+    # Spot price S_t = exp(f(t) + Z_t + Y_t). f depends only on time.
     f = seasonality(t_grid, params)
     S = np.exp(f[:, None, None] + Z + Y)
 
@@ -130,8 +121,7 @@ def _jump_increment(
     counts = rng.poisson(lam * dt, size=(n_paths, n_dims))
     max_count = int(counts.max(initial=0))
     if max_count == 0:
-        # Fast path: nothing jumped anywhere this step (very common when lam*dt is
-        # small, e.g. lam_down=0 for the single-sided model) -- skip the rest.
+        # No jumps
         return np.zeros((n_paths, n_dims))
 
     # slots = [0, 1, ..., max_count-1]; mask[p, d, k] is True iff cell (p, d) has
@@ -139,8 +129,7 @@ def _jump_increment(
     slots = np.arange(max_count)
     mask = slots[None, None, :] < counts[:, :, None]
 
-    # Draw a jump arrival time and size for *every* slot of every cell (including
-    # padding slots -- wasteful but simple, and cheap since max_count is tiny).
+    # Draw a jump arrival time and size for *every* slot of every cell (including padding slots)
     arrival = rng.uniform(0.0, dt, size=(n_paths, n_dims, max_count))
     size = rng.exponential(scale=mu, size=(n_paths, n_dims, max_count))
     # Each jump decays by exp(-beta * (time remaining until t+dt)) before we reach t+dt.

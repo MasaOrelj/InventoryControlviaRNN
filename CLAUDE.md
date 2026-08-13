@@ -62,19 +62,31 @@ branching on them. Getting this right collapses the whole comparison into swappi
 
 Plus: **ridge** is always on with a tunable `λ`, and the market **dimension `d`** is configurable
 (1-D is the main real-world case; multi-D drives the scalability comparison). For `d > 1`, the
-per-dimension swing gains are combined by an **injectable aggregation function** (sum, max, ... —
-see "Swing option specification" and `Payoff_Aggregation.py`), same inject-don't-branch principle.
+per-dimension swing gains are combined by an **injectable aggregation function** — settled:
+`max_aggregation` is the thesis's actual specified payoff (`sum_aggregation` stays implemented and
+injectable, but isn't the portfolio's actual payoff; don't default to it — see "Swing option
+specification" and `Payoff_Aggregation.py`), same inject-don't-branch principle otherwise.
 
 ## Repository layout (swing-only)
 
 ```
-Electricity_Market_Model.py  # HHK electricity model: simulate (Z,Y) factors -> spot S; 1-D and multi-D
-Swing.py              # swing payoff Q, reward, terminal, admissible sets D_n, inventory map
-Payoff_Aggregation.py # multi-D reward aggregation (sum, max, ...), injected into Swing.py's reward
-Basis_Functions.py    # feature maps: polynomial family (+ one other), RNN random features, constant
-Regression.py         # backward-induction LSM engine + ridge solver + policy/value
-experiments.py        # run configs: dimension d, (Z,Y)|S input, joint|per-level inventory, basis
+core/
+  Electricity_Market_Model.py  # HHK electricity model: simulate (Z,Y) factors -> spot S; 1-D and multi-D
+  Swing.py              # swing payoff Q, reward, terminal, admissible sets D_n, inventory map
+  Payoff_Aggregation.py # multi-D reward aggregation (sum, max, ...), injected into Swing.py's reward
+  Basis_Functions.py    # feature maps: polynomial family (+ one other), RNN random features, constant
+  Regression.py         # backward-induction LSM engine + ridge solver + policy/value
+scripts/               # experiment run configs + Experiment_Log.py (CSV logging shared by them)
+tests/                 # pytest suite, one file per core module
+R_Tables/              # R table-generation scripts and their .tex output
 ```
+
+The 5 files in `core/` are the actual mechanism -- the market model, the option's payoff/exercise
+rule, the feature maps being compared, and the LSM engine that fits and evaluates policies with
+them. Everything in `scripts/` builds experiments *on top of* that mechanism (market/contract
+calibration, which dimensions/bases to compare, the repeated-seed methodology) without adding new
+algorithmic content of its own. Imports elsewhere in the repo therefore go through `core.X` (e.g.
+`from core.Regression import fit_policy`) and, for the shared CSV logger, `scripts.Experiment_Log`.
 
 Files may merge or split later; this is a starting shape, not a commitment.
 
@@ -127,9 +139,12 @@ T = 2.0,  N = 400,  M = 20000 paths,  f(t) = ln(100) + 0.5 · cos(2π t)
 - **Multi-dimensional reward (`d > 1`).** One shared swing right across the whole portfolio — the
   action space, inventory, and Bellman structure below are otherwise unchanged from `d = 1`. Total
   gain is `Q_total(S_n) = aggregate( Q(S_n^{(1)}), ..., Q(S_n^{(d)}) )` for an **injectable**
-  `aggregate` function. Implement both `sum` and `max` in `Payoff_Aggregation.py` (more may be added
-  later); selected as a config choice in `experiments.py`, never branched on inside the engine.
-  `d = 1` reduces trivially to `Q_total = Q(S_n)`.
+  `aggregate` function, both `sum` and `max` implemented in `Payoff_Aggregation.py`. **Settled:
+  `max_aggregation` is the thesis's actual specified payoff** (`r_n(x,a) = max_j Q(S_n^{(j)})` for
+  `a=1` — "Payoff Structure": the shared right's immediate reward is the *maximal* individual-swing
+  gain across dimensions, not the sum). `sum_aggregation` stays implemented and injectable, but isn't
+  the portfolio's actual payoff; don't default to it. `d = 1` reduces trivially to `Q_total = Q(S_n)`
+  for either.
 - Reward: `r_n(x, a) = Q_total(s)` if `a = 1`, else `0`, with `s = exp(f(t_n) + z + y)` (per
   dimension; `d=1` recovers the scalar case from earlier drafts of this file).
 - Terminal: `g_N(x) = 1{i ≥ 1} · Q_total(s)`.
@@ -150,7 +165,9 @@ T = 2.0,  N = 400,  M = 20000 paths,  f(t) = ln(100) + 0.5 · cos(2π t)
 ## LSM algorithm
 
 1. Simulate `M` paths of the exogenous factors `(Z, Y)` -> spot `S` (1-D or multi-D). Split into
-   training and evaluation halves, `M_t = M_e = M/2`.
+   training and evaluation halves, `M_t = M_e = M/2`. (This is `price_swing`'s convention. The main
+   reported SD/CI experiments instead simulate training and evaluation samples independently — see
+   "Reported standard deviation and confidence intervals".)
 2. Terminal cash flows `p_N^{m,h} = g_N(x_N^{m,h})` over the inventory grid `𝓘(N)`.
 3. Backward `n = N−1, ..., 1`:
    a. Fit the continuation value, on **training paths only** (`m = 1..M_t`) — never the evaluation
@@ -202,9 +219,20 @@ products with a total-degree cap `Σ λ_i ≤ l` to limit the count `C(l+q, q)`;
 with dimension `q`, which is the weakness the RNN avoids. Implement at least the polynomial family
 plus one other, for comparison.
 
-**RNN (Approach 2).** `K−1` hidden units. Draw `Θ ∈ R^{(K−1)×q}` and `b ∈ R^{K−1}` once from a
-chosen distribution and **fix them for the entire LSM run** (do not resample per step). Feature map,
-with constant appended:
+**RNN (Approach 2).** `K−1` hidden units. Draw, once, and **fix them for the entire LSM run** (do
+not resample per step):
+
+```
+θ_jℓ ~ N(0, 1/q),   b_j ~ N(0, 1),   j = 1,...,K−1,  ℓ = 1,...,q
+```
+
+(`q` = state dimension seen by the regression). `Θ`'s variance shrinks with `1/q` so `Θ·x`'s
+variance stays roughly independent of `q` (a sum of `q` terms, each shrunk to compensate); `b` has
+no such fan-in sum to compensate for, so it stays unscaled. `make_random_features_basis`'s
+`theta_scale=None` default implements exactly this; pass `theta_scale=1.0` to reproduce the older
+unscaled-`N(0,1)` convention (needed only to match a specific external paper's stated methodology,
+e.g. the max-call validation — see `Validate_Max_Call_Benchmark.py`). Feature map, with constant
+appended:
 
 ```
 Φ(x) = ( σ(θ_1·x + b_1), ..., σ(θ_{K−1}·x + b_{K−1}), 1 ) ∈ R^K
@@ -213,6 +241,76 @@ with constant appended:
 `σ` a component-wise activation (e.g. tanh / ReLU). Only the output weights `β` are fitted (by the
 ridge step above), per time step and per action. Thesis default `K−1 = 20`. `Φ_n` is assembled once
 per time step (it does not depend on the action); the regression is refit per admissible action.
+
+## Standardization
+
+State values are large (spot price `~10^2`), which can make a preselection family under-representative
+or push RNN's activation into a regime dominated by input scale rather than shape. Every feature map
+exposes `standardize(state, mean, std) -> state`, called on the raw state **before** `build_features`,
+every backward-induction step (the state's own distribution generally shifts with `n`). `mean`/`std`
+are computed from **that step's training rows only** — same discipline as the regression fit itself,
+so the fitted policy stays independent of the evaluation sample. Two different formulas, not one:
+
+- **Polynomial, RNN:** full z-score, `x̂_ℓ = (x_ℓ − μ_ℓ)/s_ℓ`. An *unregularized* polynomial fit
+  doesn't actually need this — `{1,x,...,x^d}` and `{1,x̂,...,x̂^d}` span the same functions for any
+  affine `x̂`, so `least_squares` predictions are unchanged either way (verified: see
+  `test_interior_step_continuation_beats_exercise_hand_traced`, unaffected by adding this). It's kept
+  because `ridge_regression`'s penalty acts on raw coefficient magnitude, which is **not**
+  affine-invariant — without a common scale across features, one shared `λ` penalizes them
+  inconsistently (this is exactly what caused the `(Z,Y)+poly+ridge` anomaly discussed earlier).
+- **Weighted Laguerre:** scale-only, `x̂_ℓ = x_ℓ/s_ℓ` — **no centering**. Its weight `exp(-x/(2K))`
+  overflows for very negative `x`; centering could turn a positive price negative and blow it up, so
+  this rescales magnitude while preserving sign.
+
+## Reported standard deviation and confidence intervals
+
+A single `Ṽ_0` estimate has two distinct sources of randomness, by the law of total variance:
+
+```
+Var(Ṽ_0) = Var_r[ V(π_r) ]           <- component A: policy-fit variability
+          + E_r[ σ²(π_r) / M_e ]     <- component B: evaluation Monte Carlo noise, for a fixed policy
+```
+
+`π_r` is the exercise policy fit from training-sample seed `r`; `V(π_r)` is that policy's true value;
+`σ²(π_r)/M_e` is the Monte Carlo variance of estimating `V(π_r)` from `M_e` evaluation paths. These
+answer different questions and must be reported separately, never blended into one number:
+
+- **Component A (the main reported SD):** repeat the whole experiment 5-10 times, changing **only**
+  the training-sample seed each repetition, while the **evaluation sample stays fixed** across every
+  repetition (same seed, same paths, every rep). The resulting spread in `Ṽ_0` is a clean estimate of
+  `Var_r[V(π_r)]`, uncontaminated by evaluation noise — that contamination is exactly why
+  `price_swing`'s single-seed-for-everything convention (train and eval as two halves of one
+  `simulate_hhk` call, redrawn together each rep) is *not* what the main reported SD uses; that
+  convention still ties the two components together.
+- **Component B (a separate CLT confidence interval):** for one fixed, already-fitted policy, the
+  evaluation mean `Ṽ_0 = mean(cashflows)` over `M_e` i.i.d. evaluation paths is itself a Monte Carlo
+  estimator, so by the CLT it's approximately `N(V(π_r), σ²(π_r)/M_e)`. Report this as a confidence
+  interval `Ṽ_0 ± z · s/√M_e`, `s` the sample std of `evaluate_policy`'s `cashflows` — never as
+  another contribution to the between-repetition SD above.
+- **Consistency check:** evaluate **one** fixed policy on several *different* evaluation samples
+  (different seeds). The empirical spread of `Ṽ_0` across those runs should match the CLT interval
+  computed from any single one of them — this confirms the CLT approximation is behaving as expected,
+  and gives a direct read on how big component B is relative to component A (if B is negligible next
+  to A, a single evaluation sample's CLT interval is a fair stand-in for repeating the evaluation).
+
+**Regression.py API.** `fit_policy(S_train, regression_state_train, contract, aggregate, basis, fit,
+alpha, train_itm_only=False) -> Policy` runs the backward induction on a training sample alone and
+returns the fitted per-step coefficients (a `Policy` — regression coefficients + standardization
+stats, per step — not propagated cash flows). `evaluate_policy(policy, S_eval, regression_state_eval,
+contract, aggregate, basis, alpha) -> {"v0", "p", "cashflows"}` applies a `Policy`'s fixed coefficients
+to a (possibly separately-simulated, possibly differently-sized) evaluation sample, never refitting.
+`clt_confidence_interval(cashflows, confidence=0.95)` implements the CLT interval above, from
+`evaluate_policy`'s `"cashflows"`. `price_swing` is unchanged and still the right tool for a single
+quick price (one array, split train/eval in half internally) — it's now a thin wrapper composing
+`fit_policy` + `evaluate_policy` under the hood (see "Correctness gates and gotchas" for the
+equivalence), and is what the validation benchmark and most unit tests still use. The main reported
+SD/CI experiments should call `fit_policy`/`evaluate_policy` directly instead.
+
+**Open assumption, flag if wrong:** `clt_confidence_interval` defaults to a 95% two-sided normal
+interval (`z ≈ 1.96`) — the standard convention, but the thesis's own `\eqref{Eq:Confidence_Interval}`
+wasn't available when this was implemented (only its label, referenced from the pasted "Reported
+Standard Deviation" paragraph). Override `confidence=` (or the formula itself, if it differs in kind,
+not just level) if the thesis pins something else.
 
 ## Correctness gates and gotchas
 
@@ -228,7 +326,14 @@ per time step (it does not depend on the action); the regression is refit per ad
 - **Fit vs. propagate are different path sets, on purpose:** step 3a's regression *fit* uses training
   paths only; step 3b's action selection and cash-flow propagation runs over *all* `M` paths (both
   halves), because evaluation paths still need `p_n^{m,h}` carried backward to produce `Ṽ_0` at
-  `n=0`. Don't "simplify" this into fitting on all paths — that reintroduces in-sample leakage.
+  `n=0`. Don't "simplify" this into fitting on all paths — that reintroduces in-sample leakage. (This
+  describes `price_swing`'s single-array convention specifically; `fit_policy`/`evaluate_policy`
+  generalize the same fit/propagate split to independently-simulated training/evaluation samples —
+  see "Reported standard deviation and confidence intervals". `price_swing` is provably a special case:
+  `test_fit_policy_then_evaluate_policy_matches_price_swing_split` checks the two agree exactly.)
+- **Standardization is training-rows-only too**, same reason: `mean`/`std` computed from eval paths
+  (even partially) would leak evaluation-sample information into the fitted policy. Applies to the
+  *whole* state array (train+eval) using train-only statistics — never recomputed per split.
 - **On-grid inventory for swing:** `i − a` stays in `{0,...,L}`, so no interpolation. Keep the engine
   open to interpolation later for continuous inventory, but do not add it for swing.
 - **No ITM-only filtering.** Considered and rejected: `Q_total(s)=0` only at the measure-zero event
@@ -273,7 +378,7 @@ I_n, L         inventory (remaining swing rights), initial rights
 a, D_n(i)      action in {0,1}, admissible action set
 d              number of market dimensions (portfolio components); d=1 is the base case
 Q(S_n)         per-swing gain, single dimension
-Q_total        multi-D gain = aggregate(Q(S_n^(1)),...,Q(S_n^(d))); sum or max, d=1 reduces to Q(S_n)
+Q_total        multi-D gain = aggregate(Q(S_n^(1)),...,Q(S_n^(d))); settled: max, d=1 reduces to Q(S_n)
 K  (strike)    option strike price          -- overloaded, distinct from ↓
 K  (features)  number of basis functions / (hidden nodes + 1)
 Φ, β           feature map, fitted coefficients
