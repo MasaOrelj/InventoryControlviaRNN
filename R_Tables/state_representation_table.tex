@@ -1,27 +1,27 @@
 \begin{table}
 
-\caption{\label{tab:tab:state_representation}Comparison of state representations $(S_n,I_n)$ vs.\ $(Z_n,Y_n,I_n)$.}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
+\caption{\label{tab:state_representation}Comparison of state representations $(S_n,I_n)$ vs.\ $(Z_n,Y_n,I_n)$.
+      Rel.\ Diff.\ (\%) is $(\text{Price}_{ZY} - \text{Price}_S)/\text{Price}_S \times 100$:
+      positive means $(Z_n,Y_n,I_n)$ prices higher than $(S_n,I_n)$.}
 \centering
 \begin{tabular}[t]{rlllrrrrrrr}
 \toprule
-\multicolumn{4}{c}{ } & \multicolumn{3}{c}{\$(S\_n,I\_n)\$} & \multicolumn{3}{c}{\$(Z\_n,Y\_n,I\_n)\$} & \multicolumn{1}{c}{ } \\
+\multicolumn{4}{c}{ } & \multicolumn{3}{c}{$(S_n,I_n)$} & \multicolumn{3}{c}{$(Z_n,Y_n,I_n)$} & \multicolumn{1}{c}{ } \\
 \cmidrule(l{3pt}r{3pt}){5-7} \cmidrule(l{3pt}r{3pt}){8-10}
-Dim & Alg & Fit & \$\textbackslash{}lambda\$ & Price & SD & Duration & Price & SD & Duration & Rel. Diff (\textbackslash{}\%)\\
+Dim & Alg & Fit & $\lambda$ & Price & SD & Duration & Price & SD & Duration & Rel. Diff (\%)\\
 \midrule
-1 & Pre-selection & plain & - & 21618.3 & 5.4 & 0.86 & 21624.4 & 2.6 & 2.17 & 0.03\\
-1 & Pre-selection & ridge & 1 & 21397.0 & 10.0 & 0.79 & 21427.3 & 5.6 & 1.57 & 0.14\\
-1 & RNN & plain & - & 21584.5 & 9.8 & 8.03 & 21612.5 & 4.5 & 7.91 & 0.13\\
-1 & RNN & ridge & 1 & 21565.1 & 11.1 & 3.87 & 21568.6 & 10.2 & 3.76 & 0.02\\
+1 & Pre-selection & plain & - & 30064.1 & 15.0 & 0.63 & 30362.2 & 9.9 & 1.38 & 0.99\\
+1 & Pre-selection & ridge & 1 & 29871.0 & 19.7 & 0.72 & 30090.4 & 16.4 & 1.00 & 0.73\\
+1 & RNN & plain & - & 30144.4 & 78.1 & 5.56 & 30332.9 & 6.1 & 5.72 & 0.63\\
+1 & RNN & ridge & 1 & 30067.5 & 55.3 & 2.60 & 30245.2 & 25.3 & 2.45 & 0.59\\
 \addlinespace
-10 & Pre-selection & plain & - & 47721.1 & 36.3 & 54.11 & 47535.4 & 15.5 & 253.42 & -0.39\\
-10 & Pre-selection & ridge & 1 & 47680.9 & 19.7 & 20.25 & 47766.4 & 12.1 & 100.39 & 0.18\\
-10 & RNN & plain & - & 47766.6 & 17.2 & 7.76 & 47735.1 & 9.1 & 8.33 & -0.07\\
-10 & RNN & ridge & 1 & 47701.0 & 14.8 & 4.07 & 47671.7 & 13.9 & 4.40 & -0.06\\
+10 & Pre-selection & plain & - & 99523.3 & 76.1 & 36.65 & 99406.0 & 81.3 & 211.76 & -0.12\\
+10 & Pre-selection & ridge & 1 & 99574.6 & 58.7 & 14.17 & 99636.7 & 32.4 & 85.19 & 0.06\\
+10 & RNN & plain & - & 99648.3 & 20.8 & 5.63 & 99650.1 & 22.3 & 6.09 & 0.00\\
+10 & RNN & ridge & 1 & 99627.3 & 22.1 & 2.92 & 99629.8 & 17.7 & 3.10 & 0.00\\
 \addlinespace
-25 & RNN & plain & - & 59834.7 & 22.5 & 7.21 & 59798.8 & 5.7 & 7.54 & -0.06\\
-25 & RNN & ridge & 1 & 59812.5 & 7.3 & 3.81 & 59797.6 & 3.3 & 4.29 & -0.02\\
+25 & RNN & plain & - & 164175.0 & 59.7 & 6.31 & 164191.9 & 27.3 & 7.76 & 0.01\\
+25 & RNN & ridge & 1 & 164276.8 & 21.3 & 3.48 & 164270.5 & 20.4 & 3.84 & 0.00\\
 \bottomrule
 \end{tabular}
 \end{table}
