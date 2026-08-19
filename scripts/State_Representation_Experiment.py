@@ -74,8 +74,8 @@ def _csv_path(n_samples: int) -> str:
 # explicit choice (see conversation), not the reference codebase's own
 # double-jump convention (which shares one lam for both directions).
 MARKET_PARAMS = HHKParams(
-    kappa=7.0, sigma=1.4, beta=200.0,
-    lam_up=0.5, mu_up=0.6, lam_down=0.3, mu_down=0.4,
+    kappa=7.0, sigma=1.4, beta=40.0,
+    lam_up=5.0, mu_up=0.6, lam_down=3.0, mu_down=0.4,
 )
 
 # Symmetric contract (q_max-q_tilde = q_tilde-q_min = 25) + strike centered on

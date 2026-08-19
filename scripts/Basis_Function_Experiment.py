@@ -60,8 +60,8 @@ def _csv_path(n_samples: int) -> str:
 # -- asymmetric in both lam and mu: down-jumps are both less frequent AND
 # smaller on average than up-jumps -- user's explicit choice (see conversation).
 MARKET_PARAMS = HHKParams(
-    kappa=7.0, sigma=1.4, beta=200.0,
-    lam_up=0.5, mu_up=0.6, lam_down=0.3, mu_down=0.4,
+    kappa=7.0, sigma=1.4, beta=40.0,
+    lam_up=5.0, mu_up=0.6, lam_down=3.0, mu_down=0.4,
 )
 CONTRACT = SwingContract(K=100.0, q_min=0.0, q_max=50.0, q_tilde=25.0, L=10)
 

@@ -116,12 +116,44 @@ Y_{n+1} = e^{-βΔ} Y_n + Σ_{i=1..N^Δ} e^{-β(t_{n+1} - τ_i)} J_{τ_i},     N
 seasonality `f(t)` (interpret as a portfolio over delivery hours/locations/maturities). The
 regression state dimension grows with the number of such components.
 
-Reference parameters (from the thesis / HHK):
+Reference parameters, single-sided (from the thesis / HHK) -- used only by
+`DEFAULT_PARAMS` / the `"single_jump"` diagnostic in `Electricity_Market_Plots.py` and by
+`tests/Electricity_Market_Test.py`'s mechanics checks, **not** by any pricing experiment:
 
 ```
 κ = 7.0,  σ = 1.4,  β = 200.0,  λ = 5.0,  μ = 0.4,  Z_0 = Y_0 = 0
 T = 2.0,  N = 400,  M = 20000 paths,  f(t) = ln(100) + 0.5 · cos(2π t)
 ```
+
+**Settled double-sided calibration, used by every actual pricing/comparison experiment**
+(`MARKET_PARAMS` in every `scripts/*_Experiment.py` / `Evaluation_*.py`): asymmetric in both `λ`
+and `μ` -- down-jumps are both less frequent and smaller on average than up-jumps, a deliberate
+choice (electricity spikes are up-dominated), not a nuisance parameter:
+
+```
+κ = 7.0,  σ = 1.4,  β = 40.0
+λ_up = 5.0,  μ_up = 0.6,  λ_down = 3.0,  μ_down = 0.4
+```
+
+Was briefly `λ_up=0.5, λ_down=0.3` (a 10x scaling bug — caught 2026-08-15 when a mentor comment on
+reproduced prices flagged the mismatch): jump *frequency* (`λ`, jumps/year) and mean jump *size*
+(`μ`, `E[J]=μ` directly per this project's `scale`-parameter convention) are independent controls,
+and at `λ_up=0.5` spikes were an almost negligible ~0.5 jumps/year, defeating the point of a
+jump-diffusion model for spiky electricity prices. Every experiment run before that date used the
+wrong (10x too small) `λ`s and needs rerunning against these corrected values.
+
+`β` was also `200.0` until 2026-08-16, changed to `40.0`: at the swing experiments' weekly grid
+(`N=50`, `T=1` ⟹ `Δ≈7.3` days), `β=200`'s ~1.8-day e-folding time meant a spike firing right after
+one monitoring date had decayed to just ~1.8% of its size by the next one -- individual jumps were
+genuinely large (see `μ` discussion above) but almost entirely invisible to the discretely-exercised
+contract that's supposed to price them. `β=40` (e-folding ≈9.1 days) leaves ~45% of a spike's size
+intact in that same worst-case timing, while still decaying ~5.7x faster than `κ`'s own
+mean-reversion (so `Z` and `Y` stay qualitatively distinct: slow smooth fundamental vs. faster
+spikes) and leaving ~5x the average inter-jump gap (45.6 days) as slack before the next jump
+typically arrives (no systematic spike pile-up). The alternative fix -- keep `β=200`, raise `N` to
+resolve it properly (e.g. daily, `N=365`) -- was rejected on cost: `N=365` is ~7.3x more backward-induction
+steps per fit, too slow given how many experiments in this project already rerun repeatedly.
+Every experiment run before this date used `β=200` and needs rerunning against `β=40` too.
 
 ## Swing option specification
 

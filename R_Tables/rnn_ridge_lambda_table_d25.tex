@@ -1,0 +1,25 @@
+\begin{table}
+
+\caption{\label{tab:rnn_ridge_lambda_d25}Plain least squares vs.\ a ridge $\lambda$ grid for the RNN basis, by number of hidden units $K$, at $d=25$.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\centering
+\begin{tabular}[t]{lcccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{K = 10} & \multicolumn{2}{c}{K = 20} & \multicolumn{2}{c}{K = 30} & \multicolumn{2}{c}{K = 40} & \multicolumn{2}{c}{K = 50} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
+$\lambda$ & Price & SD & Price & SD & Price & SD & Price & SD & Price & SD\\
+\midrule
+plain & 161943.3 & 37.34 & 161920.2 & 36.56 & 161885.6 & 52.81 & 161789.1 & 70.56 & 161795.6 & 105.28\\
+\addlinespace
+0.001 & 161945.9 & 39.79 & 161935.8 & 35.01 & 161892.7 & 55.89 & 161804.3 & 72.84 & 161822.8 & 78.94\\
+0.01 & 161970.8 & 28.67 & 161964.1 & 21.43 & 161921.9 & 30.04 & 161897.8 & 49.20 & 161897.9 & 73.53\\
+0.1 & 162004.5 & 15.23 & 161990.6 & 63.84 & 161963.6 & 53.69 & 161976.1 & 37.38 & 161965.4 & 32.10\\
+1 & 162026.2 & 19.80 & 162020.5 & 15.61 & 162023.2 & 13.81 & 162029.5 & 20.10 & 162033.2 & 14.89\\
+5 & 162012.5 & 5.73 & 162012.9 & 9.00 & 162022.2 & 6.15 & 162022.6 & 12.25 & 162027.7 & 12.83\\
+10 & 162010.6 & 3.88 & 162010.4 & 5.08 & 162014.2 & 4.73 & 162017.1 & 8.00 & 162024.2 & 9.39\\
+15 & 162010.2 & 4.91 & 162009.3 & 5.30 & 162012.4 & 5.09 & 162015.3 & 4.37 & 162017.7 & 8.29\\
+20 & 162010.0 & 5.47 & 162009.2 & 6.29 & 162010.3 & 5.14 & 162011.2 & 2.76 & 162016.1 & 4.80\\
+\bottomrule
+\end{tabular}
+\end{table}

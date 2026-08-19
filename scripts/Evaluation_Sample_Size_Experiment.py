@@ -5,6 +5,14 @@ CLT confidence interval (built from evaluate_policy's cashflows) tightens as
 M_e grows -- SE scales as path-level SD / sqrt(M_e), so quadrupling M_e
 should roughly halve SE.
 
+The four M_e rows are NESTED, not independent: one evaluation sample is drawn
+at the largest size (20000) per (d, basis) cell, and each smaller M_e uses a
+PREFIX of that same draw. Growing M_e therefore means "reveal more of the
+same paths," not "redraw from scratch" -- this makes v0 converge monotonically
+as M_e grows and rules out any one row being an unlucky independent outlier
+in its own right (both were true with independent per-M_e draws, which is
+what this experiment used to do).
+
 Cells: (d, basis) in {1, 10} x {rnn, laguerre deg2}, state fixed to S, fit
 fixed to plain least squares. This is purely about evaluation Monte Carlo noise
 (component B) for a SINGLE fixed policy per cell -- no repeated training
@@ -31,8 +39,8 @@ from core.Swing import SwingContract
 CSV_PATH = os.path.join(os.path.dirname(__file__), "..", "results", "evaluation_sample_size_experiment.csv")
 
 MARKET_PARAMS = HHKParams(
-    kappa=7.0, sigma=1.4, beta=200.0,
-    lam_up=0.5, mu_up=0.6, lam_down=0.3, mu_down=0.4,
+    kappa=7.0, sigma=1.4, beta=40.0,
+    lam_up=5.0, mu_up=0.6, lam_down=3.0, mu_down=0.4,
 )
 CONTRACT = SwingContract(K=100.0, q_min=0.0, q_max=50.0, q_tilde=25.0, L=10)
 R = 0.02
@@ -45,7 +53,7 @@ M_T = 10_000
 M_E_VALUES = [5_000, 10_000, 15_000, 20_000]
 ALPHA = np.exp(-R * MATURITY / N_STEPS)
 
-EVAL_SEED_BASE = 600_000   # eval seed = EVAL_SEED_BASE + n_dims*100_000 + m_e -- one fresh sample per (d, M_e)
+EVAL_SEED_BASE = 600_000   # eval seed = EVAL_SEED_BASE + n_dims*100_000 -- ONE draw per dimension, nested below
 
 FIELDNAMES = [
     "n_dims", "state_input", "basis_type", "basis_degree", "n_paths_train", "n_paths_eval",
@@ -90,14 +98,23 @@ if __name__ == "__main__":
             )
             print(f"d={n_dims} basis={basis_type}: policy fit in {time.time() - t0:.1f}s")
 
+            # Nested M_e rows: ONE draw at the largest size, then each smaller
+            # M_e uses a PREFIX of that same draw -- not a fresh independent
+            # sample per M_e (see CLAUDE.md / mentor comment on Table 2.5:
+            # independent draws per M_e made prices non-monotone and let one
+            # row's SD be an unlucky independent outlier rather than a real
+            # M_e effect).
+            eval_rng = np.random.default_rng(EVAL_SEED_BASE + n_dims * 100_000)
+            max_m_e = max(M_E_VALUES)
+            eval_paths_full = simulate_hhk(
+                eval_rng, MARKET_PARAMS, n_paths=max_m_e, n_steps=N_STEPS, maturity=MATURITY, n_dims=n_dims,
+            )
+
             for m_e in M_E_VALUES:
                 t_run = time.time()
-                eval_rng = np.random.default_rng(EVAL_SEED_BASE + n_dims * 100_000 + m_e)
-                eval_paths = simulate_hhk(
-                    eval_rng, MARKET_PARAMS, n_paths=m_e, n_steps=N_STEPS, maturity=MATURITY, n_dims=n_dims,
-                )
+                S_eval = eval_paths_full.S[:, :m_e, :]
                 result = evaluate_policy(
-                    policy, S_eval=eval_paths.S, regression_state_eval=eval_paths.S,
+                    policy, S_eval=S_eval, regression_state_eval=S_eval,
                     contract=CONTRACT, aggregate=max_aggregation, basis=basis, alpha=ALPHA,
                 )
                 cashflows = result["cashflows"]

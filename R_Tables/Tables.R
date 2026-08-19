@@ -50,14 +50,17 @@ latex_table <- result_table %>%
                   "Price", "SD", "Duration",
                   "Price", "SD", "Duration",
                   "Rel. Diff (\\%)"),
-    caption = "Comparison of state representations $(S_n,I_n)$ vs.\\ $(Z_n,Y_n,I_n)$.",
-    label = "tab:state_representation",
-    linesep = linesep_vec
+    caption = "Comparison of state representations $(S_n,I_n)$ vs.\\ $(Z_n,Y_n,I_n)$.
+      Rel.\\ Diff.\\ (\\%) is $(\\text{Price}_{ZY} - \\text{Price}_S)/\\text{Price}_S \\times 100$:
+      positive means $(Z_n,Y_n,I_n)$ prices higher than $(S_n,I_n)$.",
+    label = "state_representation",
+    linesep = linesep_vec,
+    escape = FALSE
   ) %>%
   add_header_above(c(" " = 4,
                      "$(S_n,I_n)$" = 3,
                      "$(Z_n,Y_n,I_n)$" = 3,
-                     " " = 1))
+                     " " = 1), escape = FALSE)
 
 # Inject \footnotesize and \setlength{\tabcolsep}{4pt} right after \caption{...},
 # before \centering -- kableExtra's own styling API doesn't produce this exact
@@ -131,9 +134,10 @@ latex_table <- formatted %>%
     align = "c",
     col.names = c("Basis", rep(c("Price", "SD", "Duration"), 3)),
     caption = "Comparison of basis function families and degrees, by dimension.",
-    label = "tab:basis_functions"
+    label = "basis_functions",
+    escape = FALSE
   ) %>%
-  add_header_above(c(" " = 1, "d = 1" = 3, "d = 10" = 3, "d = 25" = 3))
+  add_header_above(c(" " = 1, "d = 1" = 3, "d = 10" = 3, "d = 25" = 3), escape = FALSE)
 
 # Same surgical injection as the first table: \footnotesize and
 # \setlength{\tabcolsep}{4pt} right after \caption{...}, before \centering.
@@ -250,8 +254,9 @@ latex_table <- result_table %>%
       independent evaluation samples vs.\\ the CLT-predicted standard error
       from a single evaluation, for one fixed policy per cell
       ($M_t=10{,}000$, $M_e=10{,}000$).",
-    label = "tab:evaluation_consistency_check",
-    linesep = linesep_vec
+    label = "evaluation_consistency_check",
+    linesep = linesep_vec,
+    escape = FALSE
   )
 
 latex_str <- as.character(latex_table)
@@ -302,8 +307,9 @@ latex_table <- result_table %>%
     caption = "Effect of the evaluation sample size $M_e$ on the CLT standard
       error and 95\\% confidence interval, for one fixed policy per
       (dimension, basis) cell ($M_t=10{,}000$).",
-    label = "tab:evaluation_sample_size",
-    linesep = linesep_vec
+    label = "evaluation_sample_size",
+    linesep = linesep_vec,
+    escape = FALSE
   )
 
 latex_str <- as.character(latex_table)

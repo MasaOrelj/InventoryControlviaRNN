@@ -1,0 +1,19 @@
+\begin{table}
+
+\caption{\label{tab:basis_function_ridge}Plain vs.\ ridge ($\lambda=1$) least squares for polynomial and Laguerre
+      (degree 2), by dimension.}
+\centering
+\begin{tabular}[t]{llcccccc}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{2}{c}{d = 1} & \multicolumn{2}{c}{d = 10} & \multicolumn{2}{c}{d = 25} \\
+\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-8}
+Basis & Fit & Price & SD & Price & SD & Price & SD\\
+\midrule
+Laguerre (deg 2) & plain & 21547.3 & NA & 47907.2 & NA & 59636.4 & NA\\
+Laguerre (deg 2) & ridge & 21196.7 & NA & 47753.4 & NA & 59654.6 & NA\\
+\addlinespace
+Poly (deg 2) & plain & 21607.8 & NA & 47878.8 & NA & 59436.8 & NA\\
+Poly (deg 2) & ridge & 21377.9 & NA & 47881.9 & NA & 59565.1 & NA\\
+\bottomrule
+\end{tabular}
+\end{table}

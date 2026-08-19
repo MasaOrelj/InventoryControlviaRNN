@@ -1,0 +1,67 @@
+\begin{table}[h]
+\centering
+\caption{\label{tab:laguerre_ridge_lambda}Plain least squares vs.\ a ridge $\lambda$ grid for the Laguerre (degree 2) basis: one table per dimension, each with only the $\lambda$ values tested there (10 repetitions at $d=1,10$, 5 at $d=25$). Rel.\ Diff.\ (\%) is $(\text{Price}_\lambda - \text{Price}_{plain})/\text{Price}_{plain} \times 100$, within that dimension: positive means the ridge fit beats plain.}
+\begin{minipage}[t]{0.32\textwidth}
+\centering
+\textbf{$d = 1$}\\[2pt]
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+
+\begin{tabular}[t]{lccc}
+\toprule
+$\lambda$ & Price & SD & \shortstack{Rel.\ Diff\\(\%)}\\
+\midrule
+plain & 30644.6 & 8.34 & 0.00\\
+\addlinespace
+0.001 & 30642.6 & 13.63 & -0.01\\
+0.01 & 30577.5 & 32.58 & -0.22\\
+0.1 & 30343.7 & 19.51 & -0.98\\
+1 & 30142.5 & 16.36 & -1.64\\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+\centering
+\textbf{$d = 10$}\\[2pt]
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+
+\begin{tabular}[t]{lccc}
+\toprule
+$\lambda$ & Price & SD & \shortstack{Rel.\ Diff\\(\%)}\\
+\midrule
+plain & 100273.2 & 116.22 & 0.00\\
+\addlinespace
+0.001 & 100351.4 & 93.32 & 0.08\\
+0.01 & 100412.1 & 33.17 & 0.14\\
+0.05 & 100411.5 & 23.36 & 0.14\\
+0.1 & 100401.7 & 15.52 & 0.13\\
+0.5 & 100186.0 & 99.81 & -0.09\\
+1 & 100178.9 & 97.31 & -0.09\\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+\centering
+\textbf{$d = 25$}\\[2pt]
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+
+\begin{tabular}[t]{lccc}
+\toprule
+$\lambda$ & Price & SD & \shortstack{Rel.\ Diff\\(\%)}\\
+\midrule
+plain & 160945.8 & 136.07 & 0.00\\
+\addlinespace
+0.001 & 161480.0 & 175.76 & 0.33\\
+0.01 & 161916.4 & 44.89 & 0.60\\
+0.1 & 162005.2 & 42.60 & 0.66\\
+1 & 162016.5 & 12.89 & 0.67\\
+10 & 162009.6 & 6.93 & 0.66\\
+15 & 162007.8 & 6.03 & 0.66\\
+20 & 162008.5 & 6.01 & 0.66\\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table}
+

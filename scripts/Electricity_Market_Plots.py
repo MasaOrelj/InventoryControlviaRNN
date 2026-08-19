@@ -125,11 +125,14 @@ if __name__ == "__main__":
     # Single-sided jumps, thesis reference parameters, z0=1.0 to make the Z-mean check visible.
     run_checks(DEFAULT_PARAMS, n_paths=20000, n_steps=400, maturity=2.0, tag="single_jump", z0=1.0)
 
-    # Double-sided jumps (up + down spikes), for later swing-option low-swing behaviour.
+    # Double-sided jumps (up + down spikes), matching the settled swing-experiment
+    # calibration (asymmetric: down-jumps less frequent and smaller than up-jumps).
+    # z0=0.0 -- unlike the single-sided check above, this should start at the
+    # actual Z_0=Y_0=0 initial condition used throughout the real experiments.
     double_jump_params = HHKParams(
         kappa=7.0, sigma=1.4, beta=200.0,
-        lam_up=5.0, mu_up=0.4, lam_down=5.0, mu_down=0.6,
+        lam_up=5.0, mu_up=0.6, lam_down=3.0, mu_down=0.4,
     )
-    run_checks(double_jump_params, n_paths=20000, n_steps=200, maturity=2.0, tag="double_jump")
+    run_checks(double_jump_params, n_paths=20000, n_steps=400, maturity=2.0, tag="double_jump", z0=0.0)
 
     print(f"Plots written to {os.path.abspath(OUT_DIR)}")
