@@ -1,0 +1,39 @@
+\begin{table}
+
+\caption{\label{tab:e1_inventory_mode_rnn}E1: RNN training-sample convergence, fixed vs.\ variable inventory formulation, plain fit, $K-1=20$ hidden units, $M_e=10{,}000$, 10 repetitions per cell. CI is the 95\% CLT interval across repetitions ($\bar{\text{Price}} \pm 1.96\cdot\text{SD}/\sqrt{10}$). Duration is fit+eval wall-clock time, averaged over repetitions.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\centering
+\begin{tabular}[t]{rrlcccccr}
+\toprule
+Dim & $M_t$ & Mode & Price & SD & CI lower & CI upper & $K$ & Duration (s)\\
+\midrule
+1 & 250 & Fixed & 26946.0 & 232.3 & 26802.0 & 27090.0 & 21 & 0.62\\
+1 & 250 & Variable & 29666.4 & 671.0 & 29250.5 & 30082.2 & 21 & 6.80\\
+1 & 1000 & Fixed & 29064.5 & 378.3 & 28830.1 & 29299.0 & 21 & 1.49\\
+1 & 1000 & Variable & 30271.9 & 254.8 & 30113.9 & 30429.8 & 21 & 8.04\\
+1 & 5000 & Fixed & 30356.3 & 250.1 & 30201.3 & 30511.3 & 21 & 3.26\\
+1 & 5000 & Variable & 30465.4 & 45.8 & 30437.0 & 30493.8 & 21 & 15.22\\
+1 & 10000 & Fixed & 30561.2 & 68.5 & 30518.8 & 30603.7 & 21 & 7.14\\
+1 & 10000 & Variable & 30486.2 & 36.6 & 30463.5 & 30508.9 & 21 & 25.80\\
+\addlinespace
+10 & 250 & Fixed & 100376.8 & 209.8 & 100246.8 & 100506.9 & 21 & 0.97\\
+10 & 250 & Variable & 96286.3 & 1276.7 & 95494.9 & 97077.6 & 21 & 8.22\\
+10 & 1000 & Fixed & 101177.0 & 48.3 & 101147.1 & 101207.0 & 21 & 1.85\\
+10 & 1000 & Variable & 98135.1 & 589.9 & 97769.5 & 98500.7 & 21 & 9.44\\
+10 & 5000 & Fixed & 101448.0 & 40.2 & 101423.1 & 101472.9 & 21 & 3.83\\
+10 & 5000 & Variable & 98783.2 & 459.5 & 98498.4 & 99068.0 & 21 & 17.89\\
+10 & 10000 & Fixed & 101507.7 & 46.0 & 101479.2 & 101536.2 & 21 & 6.92\\
+10 & 10000 & Variable & 98906.6 & 391.1 & 98664.2 & 99149.0 & 21 & 30.31\\
+\addlinespace
+25 & 250 & Fixed & 159789.1 & 294.2 & 159606.8 & 159971.5 & 21 & 1.14\\
+25 & 250 & Variable & 148625.9 & 4838.4 & 145627.0 & 151624.8 & 21 & 9.75\\
+25 & 1000 & Fixed & 161115.1 & 135.9 & 161030.9 & 161199.4 & 21 & 2.17\\
+25 & 1000 & Variable & 153236.6 & 805.1 & 152737.5 & 153735.6 & 21 & 11.44\\
+25 & 5000 & Fixed & 161608.5 & 50.4 & 161577.2 & 161639.7 & 21 & 3.92\\
+25 & 5000 & Variable & 154584.5 & 879.8 & 154039.2 & 155129.8 & 21 & 21.88\\
+25 & 10000 & Fixed & 161681.6 & 41.8 & 161655.7 & 161707.6 & 21 & 7.65\\
+25 & 10000 & Variable & 155005.4 & 745.4 & 154543.4 & 155467.4 & 21 & 35.32\\
+\bottomrule
+\end{tabular}
+\end{table}

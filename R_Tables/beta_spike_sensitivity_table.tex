@@ -1,0 +1,31 @@
+\begin{table}
+
+\caption{\label{tab:beta_spike_sensitivity}Spike contribution to the swing option value, $\tilde V_0^{\text{with spikes}}(\beta) - \tilde V_0^{\text{no spikes}}$, across a $\beta$ sweep at $d=1$ (20 repetitions, same underlying paths reused across every $\beta$ within a repetition -- see conversation). $\frac{\ln 2/\beta}{\Delta}$ is the spike half-life divided by the exercise interval $\Delta=T/N\approx7.3$ days; values below 1 mean a typical spike has already decayed away before the next decision date. Rel.\ Diff.\ (\%) is the spike contribution as a percentage of that same repetition's own no-spike baseline price, averaged over the 20 repetitions.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\centering
+\begin{tabular}[t]{rrcccccr}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{3}{c}{Laguerre (deg 2)} & \multicolumn{3}{c}{RNN} \\
+\cmidrule(l{3pt}r{3pt}){3-5} \cmidrule(l{3pt}r{3pt}){6-8}
+$\beta$ & $\frac{\ln 2/\beta}{\Delta}$ & Price Diff. & SD & Rel.\ Diff.\ (\%) & Price Diff. & SD & Rel.\ Diff.\ (\%)\\
+\midrule
+5 & 6.93 & 68047.2 & 3475.0 & 317.66 & 67547.1 & 3504.4 & 314.71\\
+10 & 3.47 & 34419.9 & 989.7 & 160.68 & 34138.0 & 1042.7 & 159.05\\
+15 & 2.31 & 23301.4 & 551.9 & 108.78 & 23101.4 & 626.8 & 107.63\\
+20 & 1.73 & 17685.5 & 394.5 & 82.56 & 17515.7 & 445.9 & 81.61\\
+25 & 1.39 & 14251.2 & 308.5 & 66.53 & 14099.8 & 370.7 & 65.69\\
+\addlinespace
+30 & 1.16 & 11929.6 & 263.9 & 55.69 & 11795.2 & 313.0 & 54.95\\
+35 & 0.99 & 10267.8 & 235.9 & 47.93 & 10140.3 & 277.5 & 47.24\\
+40 & 0.87 & 9003.1 & 212.2 & 42.03 & 8875.4 & 250.1 & 41.35\\
+45 & 0.77 & 8024.5 & 193.0 & 37.46 & 7898.7 & 215.2 & 36.80\\
+50 & 0.69 & 7234.7 & 175.1 & 33.77 & 7107.6 & 225.9 & 33.11\\
+\addlinespace
+75 & 0.46 & 4840.0 & 132.9 & 22.59 & 4722.8 & 166.5 & 22.00\\
+100 & 0.35 & 3637.5 & 108.4 & 16.98 & 3529.7 & 125.9 & 16.44\\
+150 & 0.23 & 2422.9 & 87.4 & 11.31 & 2323.9 & 104.5 & 10.83\\
+200 & 0.17 & 1815.5 & 78.2 & 8.47 & 1727.3 & 97.2 & 8.05\\
+\bottomrule
+\end{tabular}
+\end{table}

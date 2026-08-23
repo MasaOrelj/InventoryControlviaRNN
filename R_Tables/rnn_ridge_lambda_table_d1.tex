@@ -1,22 +1,42 @@
+\definecolor{priceorange}{HTML}{9A5A12}
+\definecolor{sdblue}{HTML}{0A6FD6}
 \begin{table}
 
-\caption{\label{tab:rnn_ridge_lambda_d1}Plain least squares vs.\ a ridge $\lambda$ grid for the RNN basis, by number of hidden units $K$, at $d=1$.}
+\caption{\label{tab:rnn_ridge_lambda_d1}Plain least squares vs.\ a ridge $\lambda$ grid for the RNN basis, by number of hidden units $K-1$, at $d=1$. Rel.\ Diff.\ (\%) is $(\text{Price}_\lambda - \text{Price}_{plain})/\text{Price}_{plain} \times 100$ against that SAME $K-1$'s own plain baseline: positive means the ridge fit beats plain at that $K-1$.}
 \footnotesize
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \centering
-\begin{tabular}[t]{lcccccccccc}
+\begin{tabular}[t]{lccccccccc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{2}{c}{K = 10} & \multicolumn{2}{c}{K = 20} & \multicolumn{2}{c}{K = 30} & \multicolumn{2}{c}{K = 40} & \multicolumn{2}{c}{K = 50} \\
-\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
-$\lambda$ & Price & SD & Price & SD & Price & SD & Price & SD & Price & SD\\
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{$K-1 = 10$} & \multicolumn{3}{c}{$K-1 = 20$} & \multicolumn{3}{c}{$K-1 = 30$} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7} \cmidrule(l{3pt}r{3pt}){8-10}
+$\lambda$ & Price & SD & \shortstack{Rel.\ Diff\\(\%)} & Price & SD & \shortstack{Rel.\ Diff\\(\%)} & Price & SD & \shortstack{Rel.\ Diff\\(\%)}\\
 \midrule
-plain & 30629.7 & 22.16 & 30585.1 & 45.62 & 30366.0 & 218.48 & 30119.5 & 264.29 & 30148.3 & 198.50\\
+plain & 30629.7 & 22.16 & 0.00 & 30585.1 & 45.62 & 0.00 & 30366.0 & 218.48 & 0.00\\
 \addlinespace
-0.001 & 30644.9 & 17.08 & 30648.8 & 12.84 & 30645.8 & 12.12 & 30645.9 & 13.82 & 30647.1 & 13.29\\
-0.01 & 30632.4 & 21.44 & 30648.6 & 8.75 & 30646.7 & 11.25 & 30651.6 & 13.14 & 30650.9 & 12.96\\
-0.1 & 30550.4 & 83.23 & 30629.7 & 28.32 & 30640.7 & 21.62 & 30643.9 & 11.51 & 30651.8 & 10.63\\
-1 & 30312.8 & 70.46 & 30445.5 & 52.86 & 30501.8 & 61.39 & 30536.7 & 44.14 & 30569.4 & 49.97\\
-5 & 30174.1 & 29.83 & 30251.3 & 39.58 & 30292.8 & 32.49 & 30315.9 & 22.24 & 30350.3 & 30.07\\
+0.001 & 30644.9 & 17.08 & 0.05 & \textbf{30648.8} & \textbf{12.84} & 0.21 & \textbf{30645.8} & \textbf{12.12} & 0.92\\
+0.01 & 30632.4 & 21.44 & 0.01 & \textbf{30648.6} & \textbf{8.75} & 0.21 & \textbf{30646.7} & \textbf{11.25} & 0.92\\
+0.1 & 30550.4 & 83.23 & -0.26 & 30629.7 & 28.32 & 0.15 & 30640.7 & 21.62 & 0.90\\
+1 & 30312.8 & 70.46 & -1.03 & 30445.5 & 52.86 & -0.46 & 30501.8 & 61.39 & 0.45\\
+5 & 30174.1 & 29.83 & -1.49 & 30251.3 & 39.58 & -1.09 & 30292.8 & 32.49 & -0.24\\
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+\begin{tabular}[t]{lcccccc}
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{$K-1 = 40$} & \multicolumn{3}{c}{$K-1 = 50$} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+$\lambda$ & Price & SD & \shortstack{Rel.\ Diff\\(\%)} & Price & SD & \shortstack{Rel.\ Diff\\(\%)}\\
+\midrule
+plain & 30119.5 & 264.29 & 0.00 & 30148.3 & 198.50 & 0.00\\
+\addlinespace
+0.001 & \textbf{30645.9} & \textbf{13.82} & 1.75 & \textbf{30647.1} & \textbf{13.29} & 1.65\\
+0.01 & \textbf{30651.6} & \textbf{13.14} & 1.77 & 30650.9 & 12.96 & 1.67\\
+0.1 & 30643.9 & 11.51 & 1.74 & \textbf{30651.8} & \textbf{10.63} & 1.67\\
+1 & 30536.7 & 44.14 & 1.39 & 30569.4 & 49.97 & 1.40\\
+5 & 30315.9 & 22.24 & 0.65 & 30350.3 & 30.07 & 0.67\\
 \bottomrule
 \end{tabular}
 \end{table}
+

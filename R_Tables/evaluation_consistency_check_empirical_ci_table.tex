@@ -1,0 +1,21 @@
+\begin{table}
+
+\caption{\label{tab:evaluation_consistency_check_empirical_ci}Empirical quantiles of the studentized pivot $T_k=(\tilde V_0^{(k)}-\bar V)/\widehat{SE}_k$ across the 100 draws underlying Table~\ref{tab:evaluation_consistency_check}, compared to the normal distribution's $\pm1.96$. The resulting empirical 95\% interval for a single future run is $[\tilde V_0 - q_{97.5\%}\cdot\widehat{SE},\ \tilde V_0 - q_{2.5\%}\cdot\widehat{SE}]$, replacing the symmetric CLT interval $\tilde V_0 \pm 1.96\cdot\widehat{SE}$. Every cell has $q_{97.5\%}<1.96<|q_{2.5\%}|$, reflecting the fat-left/thin-right asymmetry of $T_k$'s distribution (itself a consequence of the SE skew in Table~\ref{tab:evaluation_consistency_check_dispersion}): the interval must reach further above $\tilde V_0$ than below it to maintain 95\% coverage.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\centering
+\begin{tabular}[t]{clcc}
+\toprule
+Dim & Alg & $q_{2.5\%}$ & $q_{97.5\%}$\\
+\midrule
+1 & Laguerre (deg 2) & -2.35 & 1.80\\
+1 & RNN & -2.51 & 1.96\\
+\addlinespace
+10 & Laguerre (deg 2) & -2.43 & 1.32\\
+10 & RNN & -2.43 & 1.33\\
+\addlinespace
+25 & Laguerre (deg 2) & -2.55 & 1.59\\
+25 & RNN & -2.57 & 1.44\\
+\bottomrule
+\end{tabular}
+\end{table}

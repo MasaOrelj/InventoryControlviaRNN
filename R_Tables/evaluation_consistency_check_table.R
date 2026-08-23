@@ -6,47 +6,40 @@ library(kableExtra)
 df <- read_csv("results/evaluation_consistency_check.csv")
 
 # Per (dimension, basis) cell: empirical mean/SD across all draws vs. the
-# CLT-predicted SE from the FIRST draw's own path_level_sd alone -- the
-# "honest" comparison (what a single real run would actually have access to),
-# not a pooled-across-draws SE, which would be unrealistically optimistic
-# (see conversation).
-# Empirical coverage: for EACH of the 100 draws, form that draw's own CLT
-# interval (v0 +/- 1.96*path_level_sd/sqrt(M_e)) and check whether it
-# contains the empirical mean across all 100 draws (our best available proxy
-# for the true V(pi)) -- an assumption-free measurement of what the nominal
-# 95% interval is actually delivering, rather than inferring it from the
-# empirical-SD/CLT-SE ratio.
+# CLT-predicted SE, combined across all 100 draws via RMS (sqrt of the mean
+# of se_draw^2), NOT a plain arithmetic mean of se_draw -- se_draw^2 is a
+# variance estimate, and averaging variances (then taking one final sqrt) is
+# the correct way to combine them; averaging the SDs directly is biased
+# downward by Jensen's inequality (sqrt is concave), and that bias is exactly
+# what made a plain average look like a persistent miscalibration at d=25
+# (see conversation: RMS brings the ratio to ~1 everywhere, arithmetic mean
+# didn't). Coverage moved to the companion dispersion table (Table~\ref{tab:evaluation_consistency_check_dispersion}):
+# it's a per-draw reliability question, not an aggregate-accuracy one, so it
+# belongs there alongside the per-draw SE instability metrics instead of here.
 per_basis <- df %>%
-  group_by(n_dims, basis_type) %>%
-  mutate(empirical_mean_grp = mean(v0)) %>%
-  ungroup() %>%
-  mutate(
-    se_draw   = path_level_sd / sqrt(n_paths_eval),
-    covers    = abs(v0 - empirical_mean_grp) <= 1.96 * se_draw,
-  ) %>%
+  mutate(se_draw = path_level_sd / sqrt(n_paths_eval)) %>%
   group_by(n_dims, basis_type) %>%
   summarise(
     m_e             = first(n_paths_eval),
     n_draws         = n(),
     empirical_mean  = mean(v0),
     empirical_sd    = sd(v0),
-    first_draw_se   = path_level_sd[which.min(draw)] / sqrt(first(n_paths_eval)),
-    coverage        = mean(covers) * 100,
+    rms_se          = sqrt(mean(se_draw^2)),
     .groups = "drop"
   ) %>%
   mutate(
-    ratio = empirical_sd / first_draw_se,
+    ratio = empirical_sd / rms_se,
     alg   = case_when(
       basis_type == "rnn"      ~ "RNN",
       basis_type == "laguerre" ~ "Laguerre (deg 2)",
       TRUE                     ~ basis_type
     )
   ) %>%
-  select(n_dims, alg, m_e, n_draws, empirical_mean, empirical_sd, first_draw_se, ratio, coverage)
+  select(n_dims, alg, m_e, n_draws, empirical_mean, empirical_sd, rms_se, ratio)
 
 result_table <- per_basis %>%
   arrange(n_dims, alg) %>%
-  select(n_dims, alg, empirical_mean, empirical_sd, first_draw_se, ratio, coverage)
+  select(n_dims, alg, empirical_mean, empirical_sd, rms_se, ratio)
 
 print(result_table)
 
@@ -60,11 +53,11 @@ latex_table <- result_table %>%
   kbl(
     format = "latex",
     booktabs = TRUE,
-    align = "clccccc",
-    digits = c(0, 0, 1, 1, 1, 2, 0),
+    align = "clcccc",
+    digits = c(0, 0, 1, 1, 1, 2),
     col.names = c("Dim", "Alg", "Mean $\\tilde V_0$",
-                  "Empirical SD", "CLT SE", "Ratio", "Coverage (\\%)"),
-    caption = "Consistency check: empirical spread of $\\tilde V_0$ across independent evaluation samples vs.\\ the CLT-predicted standard error from a single evaluation, for one fixed policy per cell ($M_t=10{,}000$, $M_e=10{,}000$, 100 draws). Coverage is the assumption-free measurement: the fraction of the 100 draws' own nominal 95\\% CLT intervals ($\\tilde V_0 \\pm 1.96 \\cdot \\hat\\sigma_{M_e}/\\sqrt{M_e}$) that contain the empirical mean across all 100 draws.",
+                  "Empirical SD", "CLT SE (RMS)", "Ratio"),
+    caption = "Consistency check: empirical spread of $\\tilde V_0$ across independent evaluation samples vs.\\ the CLT-predicted standard error, for one fixed policy per cell ($M_t=10{,}000$, $M_e=10{,}000$, 100 draws). CLT SE (RMS) combines $\\hat\\sigma_{M_e}/\\sqrt{M_e}$ across all 100 draws via root-mean-square (the correct way to average variance estimates, unlike a plain arithmetic mean of SEs, which is biased downward by Jensen's inequality); it brings the Ratio to approximately 1 at every (dim, alg) cell.",
     label = "evaluation_consistency_check",
     linesep = linesep_vec,
     escape = FALSE

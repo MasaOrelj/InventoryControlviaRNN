@@ -1,0 +1,23 @@
+\begin{table}
+
+\caption{\label{tab:beta_spike_sensitivity_d10}Spike contribution to the swing option value at $d=10$, $\tilde V_0^{\text{with spikes}}(\beta) - \tilde V_0^{\text{no spikes}}$ (10 repetitions, same underlying paths reused across every $\beta$ within a repetition). Beta grid narrowed to $d=1$'s own transition zone (Table~\ref{tab:beta_spike_sensitivity}) plus two points further out, to test whether the crossover shifts to larger $\beta$ once \texttt{max\_aggregation} only needs ONE of $d$ independent dimensions to have a still-fresh spike. Rel.\ Diff.\ (\%) is the spike contribution as a percentage of that repetition's own no-spike baseline price, averaged over the 10 repetitions.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\centering
+\begin{tabular}[t]{rrcccccr}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{3}{c}{Laguerre (deg 2)} & \multicolumn{3}{c}{RNN} \\
+\cmidrule(l{3pt}r{3pt}){3-5} \cmidrule(l{3pt}r{3pt}){6-8}
+$\beta$ & $\frac{\ln 2/\beta}{\Delta}$ & Price Diff. & SD & Rel.\ Diff.\ (\%) & Price Diff. & SD & Rel.\ Diff.\ (\%)\\
+\midrule
+30 & 1.16 & 69944.0 & 804.6 & 149.72 & 70065.9 & 806.3 & 150.02\\
+35 & 0.99 & 60532.9 & 743.5 & 129.57 & 60652.3 & 726.1 & 129.86\\
+40 & 0.87 & 53378.0 & 694.3 & 114.26 & 53474.2 & 681.5 & 114.49\\
+45 & 0.77 & 47727.0 & 672.4 & 102.16 & 47809.7 & 658.3 & 102.37\\
+50 & 0.69 & 43152.9 & 639.3 & 92.37 & 43223.5 & 631.6 & 92.55\\
+\addlinespace
+75 & 0.46 & 29140.7 & 554.0 & 62.38 & 29164.8 & 540.6 & 62.45\\
+100 & 0.35 & 21971.1 & 475.5 & 47.03 & 21970.5 & 478.0 & 47.04\\
+\bottomrule
+\end{tabular}
+\end{table}

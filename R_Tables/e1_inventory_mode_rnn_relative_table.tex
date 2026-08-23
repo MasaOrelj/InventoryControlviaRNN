@@ -1,0 +1,29 @@
+\begin{table}
+
+\caption{\label{tab:e1_inventory_mode_rnn_relative}E1: training-sample convergence, price at each $M_t$ expressed as a percentage difference from that same (dimension, mode)'s own price at $M_t=10{,}000$, i.e.\ $(\text{Price}_{M_t} - \text{Price}_{M_t=10{,}000})/\text{Price}_{M_t=10{,}000} \times 100$. Same underlying data as Table~\ref{tab:e1_inventory_mode_rnn_wide}; the $M_t=10{,}000$ row is $0$ by construction.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\centering
+\begin{tabular}[t]{rrcc}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{2}{c}{Rel.\ Diff.\ vs.\ $M_t=10{,}000$ (\%)} \\
+\cmidrule(l{3pt}r{3pt}){3-4}
+Dim & $M_t$ & Fixed & Variable\\
+\midrule
+1 & 250 & -11.83 & -2.69\\
+1 & 1000 & -4.90 & -0.70\\
+1 & 5000 & -0.67 & -0.07\\
+1 & 10000 & 0.00 & 0.00\\
+\addlinespace
+10 & 250 & -1.11 & -2.65\\
+10 & 1000 & -0.33 & -0.78\\
+10 & 5000 & -0.06 & -0.12\\
+10 & 10000 & 0.00 & 0.00\\
+\addlinespace
+25 & 250 & -1.17 & -4.12\\
+25 & 1000 & -0.35 & -1.14\\
+25 & 5000 & -0.05 & -0.27\\
+25 & 10000 & 0.00 & 0.00\\
+\bottomrule
+\end{tabular}
+\end{table}

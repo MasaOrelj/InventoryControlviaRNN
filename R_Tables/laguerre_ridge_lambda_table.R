@@ -5,6 +5,11 @@ library(kableExtra)
 
 df <- read_csv("results/laguerre_ridge_lambda_experiment.csv")
 
+# df(lambda), averaged across all N-1 backward-induction steps (see
+# conversation) -- computed once by scripts/Compute_Df_Lambda.py, not
+# recomputed here, since it needs the actual Phi/eigenvalue machinery.
+df_lambda <- read_csv("results/df_lambda_laguerre.csv")
+
 result_table <- df %>%
   group_by(n_dims, fit_type, ridge_lambda) %>%
   summarise(
@@ -19,6 +24,10 @@ result_table <- df %>%
     rel_diff = (price - plain_price) * 100 / plain_price,   # vs. that dimension's own plain baseline
     lambda_sort = ifelse(fit_type == "plain", -1, ridge_lambda),
   ) %>%
+  left_join(df_lambda %>% select(n_dims, ridge_lambda, df_mean), by = c("n_dims", "ridge_lambda")) %>%
+  # plain (lambda=0) uses every feature fully: df = K = C(n_dims+2, 2) for
+  # degree-2 Laguerre (3, 66, 351 at d=1, 10, 25).
+  mutate(df_mean = ifelse(fit_type == "plain", choose(n_dims + 2, 2), df_mean)) %>%
   arrange(n_dims, lambda_sort)
 
 print(result_table)
@@ -34,7 +43,7 @@ make_dim_tabular <- function(d) {
     filter(n_dims == d) %>%
     mutate(lambda_lab = ifelse(fit_type == "plain", "plain", as.character(ridge_lambda))) %>%
     arrange(lambda_sort) %>%
-    select(lambda_lab, price, sd, rel_diff)
+    select(lambda_lab, df_mean, price, sd, rel_diff)
 
   linesep_vec <- ifelse(sub_df$lambda_lab == "plain", "\\addlinespace", "")
   linesep_vec <- linesep_vec[-length(linesep_vec)]
@@ -43,9 +52,9 @@ make_dim_tabular <- function(d) {
     kbl(
       format = "latex",
       booktabs = TRUE,
-      align = "lccc",
-      digits = c(0, 1, 2, 2),
-      col.names = c("$\\lambda$", "Price", "SD", "\\shortstack{Rel.\\ Diff\\\\(\\%)}"),
+      align = "lcccc",
+      digits = c(0, 2, 1, 2, 2),
+      col.names = c("$\\lambda$", "df($\\lambda$)", "Price", "SD", "\\shortstack{Rel.\\ Diff\\\\(\\%)}"),
       escape = FALSE,
       linesep = linesep_vec
     )
@@ -58,7 +67,7 @@ make_dim_tabular <- function(d) {
 
 minipage_for <- function(d) {
   paste0(
-    "\\begin{minipage}[t]{0.32\\textwidth}\n\\centering\n",
+    "\\begin{minipage}[t]{0.48\\textwidth}\n\\centering\n",
     "\\textbf{$d = ", d, "$}\\\\[2pt]\n",
     "\\scriptsize\n",
     "\\setlength{\\tabcolsep}{3pt}\n",
@@ -67,10 +76,15 @@ minipage_for <- function(d) {
   )
 }
 
+# Now 5 columns per minipage (df(lambda) added) instead of 4 -- too wide for
+# three side by side. 2 above (d=1, d=10), 1 below (d=25), each minipage
+# widened from 0.32 to 0.48\textwidth to use the freed-up horizontal space.
 combined <- paste0(
   "\\begin{table}[h]\n\\centering\n",
-  "\\caption{\\label{tab:laguerre_ridge_lambda}Plain least squares vs.\\ a ridge $\\lambda$ grid for the Laguerre (degree 2) basis: one table per dimension, each with only the $\\lambda$ values tested there (10 repetitions at $d=1,10$, 5 at $d=25$). Rel.\\ Diff.\\ (\\%) is $(\\text{Price}_\\lambda - \\text{Price}_{plain})/\\text{Price}_{plain} \\times 100$, within that dimension: positive means the ridge fit beats plain.}\n",
-  paste0(sapply(c(1, 10, 25), minipage_for), collapse = "\\hfill\n"),
+  "\\caption{\\label{tab:laguerre_ridge_lambda}Plain least squares vs.\\ a ridge $\\lambda$ grid for the Laguerre (degree 2) basis: one table per dimension, each with only the $\\lambda$ values tested there (10 repetitions at every dimension). Rel.\\ Diff.\\ (\\%) is $(\\text{Price}_\\lambda - \\text{Price}_{plain})/\\text{Price}_{plain} \\times 100$, within that dimension: positive means the ridge fit beats plain. df($\\lambda$) is averaged across all $N-1$ backward-induction steps; step-to-step variability is reported separately in Table~\\ref{tab:laguerre_df_variability}.}\n",
+  paste0(sapply(c(1, 10), minipage_for), collapse = "\\hfill\n"),
+  "\n\\\\[6pt]\n",
+  minipage_for(25),
   "\n\\end{table}\n"
 )
 
