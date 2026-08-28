@@ -1,0 +1,66 @@
+\begin{table}[htbp]
+\caption{\label{tab:rnn_ridge_lambda_L_sweep_K30_d1}RNN basis, $K-1=30$, $d=1$: plain least squares vs.\ a ridge $\lambda$ grid, across swing-rights counts $L \in \{1,5,10,25,40\}$. \textbf{Bold} marks cells whose price and SD are both statistically indistinguishable (exact sign-flip test, $\alpha=0.05$) from that $(d,L)$ block's own best price and best SD.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\centering
+\begin{tabular}[t]{lcccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{$L = 1$} & \multicolumn{2}{c}{$L = 5$} & \multicolumn{2}{c}{$L = 10$} & \multicolumn{2}{c}{$L = 25$} & \multicolumn{2}{c}{$L = 40$} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
+$\lambda$ & Price & SD & Price & SD & Price & SD & Price & SD & Price & SD\\
+\midrule
+plain & 6462.7 & 223.67 & 19404.6 & 246.24 & 30366.0 & 218.48 & 51858.5 & 183.15 & 64299.5 & 176.73\\
+\addlinespace
+0.001 & \textbf{6872.4} & \textbf{21.53} & \textbf{19740.4} & \textbf{10.99} & \textbf{30645.8} & \textbf{12.12} & \textbf{52061.6} & \textbf{5.99} & \textbf{64434.5} & \textbf{4.21}\\
+0.01 & \textbf{6887.2} & \textbf{19.68} & \textbf{19742.9} & \textbf{11.97} & \textbf{30646.7} & \textbf{11.25} & \textbf{52058.9} & \textbf{4.55} & \textbf{64432.7} & \textbf{3.28}\\
+0.1 & \textbf{6891.5} & \textbf{16.31} & 19739.3 & 21.48 & \textbf{30640.7} & \textbf{21.62} & 52050.7 & 11.80 & 64427.1 & 4.77\\
+1 & \textbf{6868.9} & \textbf{31.19} & 19643.2 & 39.44 & 30501.8 & 61.39 & 51975.7 & 35.99 & 64390.2 & 14.14\\
+5 & 6728.1 & 27.10 & 19449.8 & 44.70 & 30292.8 & 32.49 & 51838.3 & 30.51 & 64310.6 & 15.83\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{\label{tab:rnn_ridge_lambda_L_sweep_K30_d10}RNN basis, $K-1=30$, $d=10$: plain least squares vs.\ a ridge $\lambda$ grid, across swing-rights counts $L \in \{1,5,10,25,40\}$. \textbf{Bold} marks cells whose price and SD are both statistically indistinguishable (exact sign-flip test, $\alpha=0.05$) from that $(d,L)$ block's own best price and best SD.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\centering
+\begin{tabular}[t]{lcccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{$L = 1$} & \multicolumn{2}{c}{$L = 5$} & \multicolumn{2}{c}{$L = 10$} & \multicolumn{2}{c}{$L = 25$} & \multicolumn{2}{c}{$L = 40$} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
+$\lambda$ & Price & SD & Price & SD & Price & SD & Price & SD & Price & SD\\
+\midrule
+plain & 22265.2 & 4646.92 & 68594.0 & 438.60 & 100320.6 & 100.84 & 158055.6 & 11.36 & 188816.9 & 4.91\\
+\addlinespace
+0.001 & 22415.5 & 4593.89 & 68649.9 & 415.80 & 100343.1 & 86.43 & 158058.9 & 11.09 & 188819.1 & 3.77\\
+0.01 & 23595.4 & 2665.86 & 68775.7 & 426.31 & \textbf{100379.8} & \textbf{72.30} & \textbf{158067.3} & \textbf{13.07} & \textbf{188822.1} & \textbf{2.50}\\
+0.1 & 24609.1 & 513.84 & 68914.3 & 176.73 & \textbf{100404.9} & \textbf{31.44} & 158060.2 & 8.29 & \textbf{188820.9} & \textbf{3.32}\\
+1 & \textbf{24868.7} & \textbf{168.48} & \textbf{68867.2} & \textbf{172.39} & \textbf{100400.3} & \textbf{17.33} & 158026.9 & 7.04 & 188808.1 & 3.22\\
+5 & \textbf{24840.4} & \textbf{102.02} & 68717.6 & 81.95 & 100201.2 & 121.72 & 158005.7 & 6.73 & 188799.9 & 2.62\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{\label{tab:rnn_ridge_lambda_L_sweep_K30_d25}RNN basis, $K-1=30$, $d=25$: plain least squares vs.\ a ridge $\lambda$ grid, across swing-rights counts $L \in \{1,5,10,25,40\}$. \textbf{Bold} marks cells whose price and SD are both statistically indistinguishable (exact sign-flip test, $\alpha=0.05$) from that $(d,L)$ block's own best price and best SD.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\centering
+\begin{tabular}[t]{lcccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{$L = 1$} & \multicolumn{2}{c}{$L = 5$} & \multicolumn{2}{c}{$L = 10$} & \multicolumn{2}{c}{$L = 25$} & \multicolumn{2}{c}{$L = 40$} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
+$\lambda$ & Price & SD & Price & SD & Price & SD & Price & SD & Price & SD\\
+\midrule
+plain & 40091.1 & 1352.08 & 112499.1 & 239.52 & 161903.6 & 50.03 & \textbf{248532.7} & \textbf{15.24} & 293695.1 & 2.76\\
+\addlinespace
+0.001 & 40185.3 & 1262.55 & 112502.4 & 244.53 & 161907.3 & 48.19 & 248532.7 & 16.48 & 293694.9 & 3.45\\
+0.01 & 40667.0 & 944.69 & 112661.1 & 179.67 & 161943.0 & 35.34 & 248534.8 & 25.33 & 293697.1 & 3.64\\
+0.1 & 41504.2 & 280.86 & 112818.3 & 93.04 & 161977.2 & 42.03 & \textbf{248539.1} & \textbf{15.46} & 293695.3 & 2.84\\
+1 & \textbf{41876.2} & \textbf{61.58} & \textbf{112953.4} & \textbf{55.65} & \textbf{162015.7} & \textbf{16.53} & \textbf{248532.0} & \textbf{8.81} & 293692.6 & 0.74\\
+5 & \textbf{41848.2} & \textbf{57.61} & \textbf{112970.9} & \textbf{53.06} & \textbf{162013.7} & \textbf{15.22} & \textbf{248528.9} & \textbf{8.14} & 293692.0 & 0.90\\
+\bottomrule
+\end{tabular}
+\end{table}
+

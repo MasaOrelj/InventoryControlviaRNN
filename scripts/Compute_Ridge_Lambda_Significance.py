@@ -5,12 +5,33 @@ SD and the cell with the largest Price, then test every other cell against
 those two references, on the SAME reps (train/eval paths are shared across
 every (K-1, lambda) cell at a given dimension and rep -- see
 RNN_Ridge_Lambda_Experiment.py -- so these are paired, not independent,
-samples):
+samples).
 
-- SD vs. the table's minimum SD: Pitman-Morgan paired test for equal
-  variances, via r = corr(X+Y, X-Y), t = r*sqrt(n-2)/sqrt(1-r^2), df=n-2.
-- Price vs. the table's maximum price: paired t-test on the price
-  differences, df=n-1.
+EXACT sign-flip permutation tests (not the parametric paired t-test /
+Pitman-Morgan test used in an earlier version of this script -- see
+conversation): with only n=10 (or 5) reps, the t-distribution step in both
+parametric tests is only an approximation, justified by assuming the
+underlying differences are close to normal. A validation check against real
+data here showed the SD test in particular was NOT robust to that assumption
+-- e.g. RNN d=10, K-1=10, lambda=0.1 vs. the table's best-SD cell: parametric
+Pitman-Morgan gave p=0.0072 (significant), the exact test gives p=0.469 (not
+even close) -- a reversed conclusion, not a minor correction. Price held up
+much better under the same check (CLT gives means better small-sample
+robustness than a correlation-derived statistic gets from its
+t-approximation), but is now tested exactly too for consistency.
+
+For each pair (cell X, reference Y), let D_i = X_i - Y_i, S_i = X_i + Y_i
+(i = 1..n reps). Enumerate ALL 2^n sign vectors eps in {-1,+1}^n (exact, not
+Monte Carlo -- trivial at n=10 or n=5):
+
+- Price: Dbar(eps) = mean(eps_i * D_i). p = fraction of the 2^n vectors with
+  |Dbar(eps)| >= |Dbar_obs| (eps = all +1, i.e. the actual observed mean
+  difference).
+- SD: r(eps) = corr(S, eps*D) -- S held fixed, D sign-flipped. r(eps=all +1)
+  is exactly the Pitman-Morgan r already used elsewhere in this project;
+  flipping D_i's sign while holding S_i fixed is exactly "swap which of the
+  pair is X vs Y for that rep", the correct symmetry under H0: equal
+  variance. p = fraction of |r(eps)| >= |r_obs|.
 
 A cell is flagged "bold" only if BOTH p-values are >= 0.05, i.e. that cell's
 SD is not distinguishable from the table's best (lowest) SD AND its price is
@@ -38,11 +59,11 @@ cells to actually mean fewer TRUE distinctions, not just less data.
 
 Run: python -m scripts.Compute_Ridge_Lambda_Significance
 """
+import itertools
 import os
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 CSV_PATH = os.path.join(os.path.dirname(__file__), "..", "results", "rnn_ridge_lambda_experiment.csv")
 OUT_PATH = os.path.join(os.path.dirname(__file__), "..", "results", "rnn_ridge_lambda_significance.csv")
@@ -51,20 +72,48 @@ ALPHA = 0.05
 EXCLUDED_LAMBDAS = {10.0, 15.0, 20.0}
 
 
-def _pitman_morgan_p(x: np.ndarray, y: np.ndarray) -> float:
+def _sign_flip_price_p(x: np.ndarray, y: np.ndarray) -> float:
+    """Exact sign-flip test on the paired mean difference. Replaces the
+    paired t-test -- see module docstring."""
     if np.array_equal(x, y):
         return 1.0
-    n = len(x)
-    r, _ = stats.pearsonr(x + y, x - y)
-    t = r * np.sqrt(n - 2) / np.sqrt(1 - r**2)
-    return float(2 * stats.t.sf(abs(t), n - 2))
+    D = x - y
+    n = len(D)
+    D_obs = D.mean()
+    count = 0
+    total = 0
+    for signs in itertools.product([-1, 1], repeat=n):
+        eps = np.array(signs)
+        if abs((eps * D).mean()) >= abs(D_obs) - 1e-9:
+            count += 1
+        total += 1
+    return count / total
 
 
-def _paired_t_p(x: np.ndarray, y: np.ndarray) -> float:
+def _sign_flip_sd_p(x: np.ndarray, y: np.ndarray) -> float:
+    """Exact sign-flip test on corr(S, D) -- replaces the Pitman-Morgan
+    (parametric t-distribution) test -- see module docstring."""
     if np.array_equal(x, y):
         return 1.0
-    _, p = stats.ttest_rel(x, y)
-    return float(p)
+    S = x + y
+    D = x - y
+    n = len(D)
+
+    def corr(a, b):
+        a = a - a.mean()
+        b = b - b.mean()
+        denom = np.sqrt((a**2).sum() * (b**2).sum())
+        return 0.0 if denom == 0 else (a * b).sum() / denom
+
+    r_obs = corr(S, D)
+    count = 0
+    total = 0
+    for signs in itertools.product([-1, 1], repeat=n):
+        eps = np.array(signs)
+        if abs(corr(S, eps * D)) >= abs(r_obs) - 1e-9:
+            count += 1
+        total += 1
+    return count / total
 
 
 def _significance(cells: dict) -> dict:
@@ -74,7 +123,7 @@ def _significance(cells: dict) -> dict:
     sd_ref = cells[min(sds, key=sds.get)]
     price_ref = cells[max(means, key=means.get)]
     return {
-        key: (_pitman_morgan_p(arr, sd_ref), _paired_t_p(arr, price_ref))
+        key: (_sign_flip_sd_p(arr, sd_ref), _sign_flip_price_p(arr, price_ref))
         for key, arr in cells.items()
     }
 

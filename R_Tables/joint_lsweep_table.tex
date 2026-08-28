@@ -1,0 +1,34 @@
+\begin{table}
+
+\caption{\label{tab:joint_lsweep}Laguerre (degree 2) vs.\ RNN ($K-1=30$), 40 repetitions per cell, across swing-rights counts $L$ and dimensions $d$, each at its own settled ridge $\lambda$. SD is the between-repetition spread (policy-fit variability, Component A); the 95\% CI is the CLT interval $\hat v_0 \pm z \cdot s/\sqrt{M_e}$ from a single fixed policy's evaluation cashflows (Component B, evaluation Monte Carlo noise -- see conversation), not a resampling of the SD column. Rel.\ Diff.\ (\%) is $(\text{Price}_{RNN} - \text{Price}_{Laguerre})/\text{Price}_{Laguerre} \times 100$; \textbf{bold*} marks cells where the paired difference (RNN and Laguerre share the same 40 training seeds) is statistically significant by an exact/Monte-Carlo sign-flip test ($\alpha=0.05$). SD of Paired Diff is the standard deviation of $\text{Price}_{RNN,i}-\text{Price}_{Laguerre,i}$ across the 40 matched repetitions $i$.}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\centering
+\begin{tabular}[t]{cccccccccc}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{3}{c}{Laguerre} & \multicolumn{3}{c}{RNN} & \multicolumn{2}{c}{ } \\
+\cmidrule(l{3pt}r{3pt}){3-5} \cmidrule(l{3pt}r{3pt}){6-8}
+$L$ & $d$ & Price & SD & 95\% CI & Price & SD & 95\% CI & \shortstack{Rel.\ Diff\\(\%)} & \shortstack{SD of\\Paired Diff}\\
+\midrule
+1 & 1 & 6873.0 & 41.04 & {}[6391, 7432] & 6880.9 & 32.52 & {}[6390, 7429] & \textbf{0.12*} & 23.67\\
+1 & 10 & 24885.9 & 208.36 & {}[24006, 25813] & 24813.4 & 166.82 & {}[23911, 25699] & -0.29 & 235.38\\
+1 & 25 & 41834.3 & 58.96 & {}[39961, 43623] & 41857.3 & 108.20 & {}[40070, 43805] & 0.05 & 90.24\\
+\addlinespace
+5 & 1 & 19741.5 & 26.42 & {}[19173, 20324] & 19745.0 & 15.15 & {}[19160, 20311] & 0.02 & 21.59\\
+5 & 10 & 68802.4 & 146.75 & {}[67549, 69885] & 68775.9 & 125.19 & {}[67522, 69857] & -0.04 & 174.58\\
+5 & 25 & 112970.1 & 52.17 & {}[110662, 115119] & 112964.1 & 60.70 & {}[110711, 115176] & -0.01 & 64.49\\
+\addlinespace
+10 & 1 & 30642.0 & 19.01 & {}[30032, 31254] & 30647.4 & 15.08 & {}[30047, 31271] & \textbf{0.02*} & 15.96\\
+10 & 10 & 100412.4 & 15.23 & {}[99039, 101780] & 100408.2 & 23.78 & {}[99020, 101761] & -0.00 & 21.31\\
+10 & 25 & 162012.9 & 14.78 & {}[159675, 164346] & 162017.7 & 20.54 & {}[159672, 164342] & 0.00 & 15.47\\
+\addlinespace
+25 & 1 & 52052.9 & 6.62 & {}[51391, 52708] & 52058.6 & 5.22 & {}[51396, 52714] & \textbf{0.01*} & 6.24\\
+25 & 10 & 158066.3 & 7.02 & {}[156630, 159517] & 158064.1 & 9.08 & {}[156642, 159529] & -0.00 & 9.27\\
+25 & 25 & 248546.3 & 13.49 & {}[246139, 250988] & 248531.5 & 9.22 & {}[246101, 250950] & \textbf{-0.01*} & 16.28\\
+\addlinespace
+40 & 1 & 64430.8 & 3.52 & {}[63752, 65116] & 64433.2 & 3.59 & {}[63752, 65115] & \textbf{0.00*} & 4.71\\
+40 & 10 & 188828.6 & 3.32 & {}[187364, 190295] & 188820.8 & 3.05 & {}[187358, 190289] & \textbf{-0.00*} & 4.29\\
+40 & 25 & 293703.8 & 3.84 & {}[291250, 296160] & 293697.4 & 4.25 & {}[291238, 296147] & \textbf{-0.00*} & 5.27\\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,65 @@
+\begin{table}[htbp]
+\caption{\label{tab:laguerre_ridge_lambda_L_sweep_d1}Laguerre (degree 2) basis, $d=1$: plain least squares vs.\ a ridge $\lambda$ grid, across swing-rights counts $L \in \{1,5,10,25,40\}$. \textbf{Bold} marks cells whose price and SD are both statistically indistinguishable (sign-flip test, $\alpha=0.05$) from that $(d,L)$ block's own best price and best SD. ``--'' marks $\lambda$ values not tested at that $L$.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\centering
+\begin{tabular}[t]{lcccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{$L = 1$} & \multicolumn{2}{c}{$L = 5$} & \multicolumn{2}{c}{$L = 10$} & \multicolumn{2}{c}{$L = 25$} & \multicolumn{2}{c}{$L = 40$} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
+$\lambda$ & Price & SD & Price & SD & Price & SD & Price & SD & Price & SD\\
+\midrule
+plain & \textbf{6868.0} & \textbf{48.36} & \textbf{19748.7} & \textbf{14.83} & \textbf{30644.6} & \textbf{8.34} & 52050.0 & 7.79 & \textbf{64430.4} & \textbf{3.44}\\
+\addlinespace
+0.001 & \textbf{6874.1} & \textbf{44.07} & \textbf{19746.3} & \textbf{13.06} & \textbf{30642.6} & \textbf{13.63} & \textbf{52052.4} & \textbf{7.74} & 64428.0 & 3.57\\
+0.01 & \textbf{6871.4} & \textbf{25.10} & 19682.2 & 24.09 & 30577.5 & 32.58 & 52034.9 & 10.73 & 64415.3 & 3.04\\
+0.1 & 6718.8 & 30.62 & 19466.8 & 20.21 & 30343.7 & 19.51 & 51894.2 & 10.18 & 64335.3 & 3.55\\
+1 & 6633.8 & 14.00 & 19275.0 & 20.07 & 30142.5 & 16.36 & 51721.1 & 4.96 & 64251.2 & 4.08\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{\label{tab:laguerre_ridge_lambda_L_sweep_d10}Laguerre (degree 2) basis, $d=10$: plain least squares vs.\ a ridge $\lambda$ grid, across swing-rights counts $L \in \{1,5,10,25,40\}$. \textbf{Bold} marks cells whose price and SD are both statistically indistinguishable (sign-flip test, $\alpha=0.05$) from that $(d,L)$ block's own best price and best SD. ``--'' marks $\lambda$ values not tested at that $L$.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\centering
+\begin{tabular}[t]{lcccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{$L = 1$} & \multicolumn{2}{c}{$L = 5$} & \multicolumn{2}{c}{$L = 10$} & \multicolumn{2}{c}{$L = 25$} & \multicolumn{2}{c}{$L = 40$} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
+$\lambda$ & Price & SD & Price & SD & Price & SD & Price & SD & Price & SD\\
+\midrule
+plain & 22184.2 & 3992.68 & 68482.7 & 589.83 & 100273.2 & 116.22 & 158047.5 & 10.28 & 188820.8 & 3.87\\
+\addlinespace
+0.001 & 23220.1 & 3802.02 & 68685.4 & 543.00 & 100351.4 & 93.32 & 158067.2 & 6.94 & 188828.6 & 4.20\\
+0.01 & \textbf{24586.1} & \textbf{801.58} & 68878.9 & 216.53 & 100412.1 & 33.17 & 158067.1 & 6.33 & 188827.6 & 2.80\\
+0.05 & \textbf{24847.4} & \textbf{280.81} & \textbf{68795.2} & \textbf{154.68} & \textbf{100412.4} & \textbf{15.23} & 158047.3 & 3.20 & 188814.7 & 1.97\\
+0.1 & \textbf{24843.4} & \textbf{184.16} & 68724.3 & 126.34 & 100403.4 & 13.88 & 158031.9 & 2.37 & 188808.0 & 2.65\\
+1 & \textbf{24882.6} & \textbf{132.32} & \textbf{68707.2} & \textbf{123.16} & 100168.0 & 86.91 & 158001.3 & 3.98 & 188797.0 & 1.15\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{\label{tab:laguerre_ridge_lambda_L_sweep_d25}Laguerre (degree 2) basis, $d=25$: plain least squares vs.\ a ridge $\lambda$ grid, across swing-rights counts $L \in \{1,5,10,25,40\}$. \textbf{Bold} marks cells whose price and SD are both statistically indistinguishable (sign-flip test, $\alpha=0.05$) from that $(d,L)$ block's own best price and best SD. ``--'' marks $\lambda$ values not tested at that $L$.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\centering
+\begin{tabular}[t]{lcccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{$L = 1$} & \multicolumn{2}{c}{$L = 5$} & \multicolumn{2}{c}{$L = 10$} & \multicolumn{2}{c}{$L = 25$} & \multicolumn{2}{c}{$L = 40$} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
+$\lambda$ & Price & SD & Price & SD & Price & SD & Price & SD & Price & SD\\
+\midrule
+plain & 19433.7 & 7724.38 & 109617.1 & 790.09 & 160958.3 & 169.06 & 248403.3 & 23.59 & 293634.4 & 4.70\\
+\addlinespace
+0.001 & 34057.6 & 8125.59 & 111448.7 & 852.57 & 161538.0 & 165.53 & 248496.8 & 20.69 & 293676.0 & 6.74\\
+0.01 & 41478.2 & 412.70 & 112724.6 & 144.95 & 161948.2 & 49.70 & 248560.3 & 17.90 & 293702.1 & 2.50\\
+0.1 & 41804.0 & 101.42 & \textbf{112921.2} & \textbf{68.85} & 162027.2 & 38.35 & \textbf{248550.2} & \textbf{17.79} & 293696.7 & 2.16\\
+1 & \textbf{41825.4} & \textbf{35.23} & \textbf{112950.0} & \textbf{48.90} & \textbf{162015.1} & \textbf{11.14} & 248534.6 & 6.47 & 293692.4 & 1.42\\
+10 & \textbf{41818.9} & \textbf{50.20} & \textbf{112948.5} & \textbf{56.40} & \textbf{162008.1} & \textbf{6.82} & 248527.6 & 8.43 & 293691.7 & 0.70\\
+\bottomrule
+\end{tabular}
+\end{table}
+

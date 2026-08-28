@@ -331,12 +331,22 @@ def _fit_backward_induction(
             standardized_state = basis.standardize(regression_state_train[n], mean, std)
             Phi = basis.build_features(standardized_state)
 
+            # beta1 at level i targets p_prev[i-1], on the same Phi -- exactly
+            # what beta0 targeted one grid step earlier, at level i-1 (see
+            # conversation). Cache the previous iteration's beta0 and reuse it
+            # as beta1 instead of refitting; bit-for-bit identical since
+            # _fit_beta is a deterministic function of (Phi, target) and both
+            # are literally unchanged, just called once instead of twice.
+            prev_beta0 = None
             for i in grid:
                 if i == 0:
                     continue   # p_new[0,:] stays 0 -- V_n(.,.,0)=0, no regression needed
 
                 beta0 = _fit_beta(Phi, alpha * p_prev[i, :], fit, train_itm_only, immediate)
-                beta1 = _fit_beta(Phi, alpha * p_prev[i - 1, :], fit, train_itm_only, immediate)
+                if prev_beta0 is not None:
+                    beta1 = prev_beta0
+                else:
+                    beta1 = _fit_beta(Phi, alpha * p_prev[i - 1, :], fit, train_itm_only, immediate)
                 betas[(n, i)] = (beta0, beta1)
 
                 c0 = Phi @ beta0
@@ -346,6 +356,8 @@ def _fit_backward_induction(
                 reward = Swing.reward(immediate, action)
                 continuation = np.where(action == 1, alpha * p_prev[i - 1, :], alpha * p_prev[i, :])
                 p_new[i, :] = reward + continuation
+
+                prev_beta0 = beta0
 
         elif inventory_mode == "joint":
             state_market = regression_state_train[n]   # (M_t, d), inventory NOT yet appended

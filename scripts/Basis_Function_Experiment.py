@@ -69,7 +69,7 @@ R = 0.02
 MATURITY = 1.0
 N_STEPS = 50
 DEFAULT_N_SAMPLES = 5_000   # training AND evaluation sample size, unless overridden on the command line
-N_REPS = 5
+N_REPS = 10
 
 # Fixed per n_dims, distinct from the training seeds (1000*n_dims + rep, rep
 # in 0..4) -- one evaluation sample per dimension, shared by every repetition.
